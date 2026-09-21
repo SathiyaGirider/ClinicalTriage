@@ -1,0 +1,134 @@
+{
+    "scenario_id": "08_pediatric_febrile_seizure",
+    "description": "Pediatric case \u2014 parent reporting a brief febrile seizure in a 3-year-old. Child has now stopped seizing but is drowsy. Multiple known conditions and parental panic.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P008",
+            "input_type": "voice",
+            "language": "en",
+            "raw_transcript": "My son is 3 years old and he just had a seizure \u2014 his whole body was shaking for maybe a minute or two. He has a fever, it started yesterday. He\u2019s not shaking anymore but he\u2019s very sleepy and kind of not responding properly, just staring. He\u2019s had a febrile seizure once before when he was two. He also has asthma. I\u2019m terrified, what do I do?",
+            "age": 3,
+            "known_conditions_raw": "asthma, previous febrile seizure"
+        },
+        "ideal_output": {
+            "patient_id": "P008",
+            "chief_complaint": "febrile seizure in a 3-year-old child",
+            "duration": "1-2 minutes (seizure); fever since yesterday",
+            "symptoms": [
+                "generalised tonic-clonic seizure (resolved)",
+                "high fever",
+                "post-ictal drowsiness",
+                "reduced responsiveness (post-seizure)"
+            ],
+            "age": 3,
+            "known_conditions": [
+                "asthma",
+                "history of febrile seizure"
+            ],
+            "follow_up_answers": {
+                "seizure_duration": "1-2 minutes",
+                "currently_seizing": "no",
+                "fever_onset": "yesterday",
+                "consciousness": "drowsy but present",
+                "cyanosis_during_seizure": "unknown"
+            },
+            "raw_transcript": "My son is 3 years old and he just had a seizure \u2014 his whole body was shaking for maybe a minute or two. He has a fever, it started yesterday. He\u2019s not shaking anymore but he\u2019s very sleepy and kind of not responding properly, just staring. He\u2019s had a febrile seizure once before when he was two. He also has asthma. I\u2019m terrified, what do I do?",
+            "input_confidence": "high"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P008",
+            "chief_complaint": "febrile seizure in a 3-year-old child",
+            "duration": "1-2 minutes (seizure); fever since yesterday",
+            "symptoms": [
+                "generalised tonic-clonic seizure (resolved)",
+                "high fever",
+                "post-ictal drowsiness",
+                "reduced responsiveness (post-seizure)"
+            ],
+            "age": 3,
+            "known_conditions": [
+                "asthma",
+                "history of febrile seizure"
+            ],
+            "follow_up_answers": {
+                "seizure_duration": "1-2 minutes",
+                "currently_seizing": "no",
+                "fever_onset": "yesterday",
+                "consciousness": "drowsy but present",
+                "cyanosis_during_seizure": "unknown"
+            },
+            "raw_transcript": "My son is 3 years old and he just had a seizure \u2014 his whole body was shaking for maybe a minute or two. He has a fever, it started yesterday. He\u2019s not shaking anymore but he\u2019s very sleepy and kind of not responding properly, just staring. He\u2019s had a febrile seizure once before when he was two. He also has asthma. I\u2019m terrified, what do I do?",
+            "input_confidence": "high"
+        },
+        "ideal_output": {
+            "patient_id": "P008",
+            "priority": "emergency",
+            "red_flags_matched": [
+                "pediatric_seizure"
+            ],
+            "decided_by": "rule",
+            "confidence": "high",
+            "escalation_required": true,
+            "priority_rationale": "A generalised seizure in a 3-year-old with ongoing fever and post-ictal altered consciousness requires immediate emergency evaluation. The brief duration and self-resolution are reassuring but are insufficient to downgrade priority \u2014 serious neurological and infectious causes cannot be excluded, particularly given the child\u2019s reduced responsiveness and high fever. A known history of prior seizure activity does not lower urgency in this presentation. Comorbid respiratory conditions warrant additional monitoring. Immediate paediatric emergency assessment is indicated.",
+            "timestamp": "2026-09-21T10:50:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P008",
+                "chief_complaint": "febrile seizure in a 3-year-old child",
+                "duration": "1-2 minutes (seizure); fever since yesterday",
+                "symptoms": [
+                    "generalised tonic-clonic seizure (resolved)",
+                    "high fever",
+                    "post-ictal drowsiness",
+                    "reduced responsiveness (post-seizure)"
+                ],
+                "age": 3,
+                "known_conditions": [
+                    "asthma",
+                    "history of febrile seizure"
+                ],
+                "follow_up_answers": {
+                    "seizure_duration": "1-2 minutes",
+                    "currently_seizing": "no",
+                    "fever_onset": "yesterday",
+                    "consciousness": "drowsy but present",
+                    "cyanosis_during_seizure": "unknown"
+                },
+                "raw_transcript": "My son is 3 years old and he just had a seizure \u2014 his whole body was shaking for maybe a minute or two. He has a fever, it started yesterday. He\u2019s not shaking anymore but he\u2019s very sleepy and kind of not responding properly, just staring. He\u2019s had a febrile seizure once before when he was two. He also has asthma. I\u2019m terrified, what do I do?",
+                "input_confidence": "high"
+            },
+            "triage_decision": {
+                "patient_id": "P008",
+                "priority": "emergency",
+                "red_flags_matched": [
+                    "pediatric_seizure_red_flag"
+                ],
+                "decided_by": "rule+llm",
+                "confidence": "high",
+                "escalation_required": true,
+                "priority_rationale": "A generalised seizure in a 3-year-old with ongoing fever and post-ictal altered consciousness requires immediate emergency evaluation. The brief duration and self-resolution are reassuring but are insufficient to downgrade priority \u2014 serious neurological and infectious causes cannot be excluded, particularly given the child\u2019s reduced responsiveness and high fever. A known history of prior seizure activity does not lower urgency in this presentation. Comorbid respiratory conditions warrant additional monitoring. Immediate paediatric emergency assessment is indicated.",
+                "timestamp": "2026-09-21T10:50:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P008",
+            "chief_complaint": "febrile seizure in a 3-year-old child",
+            "duration": "1-2 minutes (seizure); fever since yesterday",
+            "red_flags": [
+                "pediatric_seizure_red_flag"
+            ],
+            "relevant_history": [
+                "asthma",
+                "history of febrile seizure"
+            ],
+            "priority": "emergency",
+            "priority_rationale": "A generalised seizure in a 3-year-old with ongoing fever and post-ictal altered consciousness requires immediate emergency evaluation. The brief duration and self-resolution are reassuring but are insufficient to downgrade priority \u2014 serious neurological and infectious causes cannot be excluded, particularly given the child\u2019s reduced responsiveness and high fever. A known history of prior seizure activity does not lower urgency in this presentation. Comorbid respiratory conditions warrant additional monitoring. Immediate paediatric emergency assessment is indicated.",
+            "timestamp": "2026-09-21T10:50:00Z"
+        }
+    }
+}

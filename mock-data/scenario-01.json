@@ -1,0 +1,131 @@
+{
+    "scenario_id": "01_emergency_chest_pain",
+    "description": "Classic cardiac emergency \u2014 chest pain + shortness of breath. Should trigger a hardcoded red flag and route to Emergency.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P001",
+            "input_type": "voice",
+            "language": "en",
+            "raw_transcript": "I've had this really bad chest pain for like the last 20 minutes and I can't breathe right. It's like this pressure and it's kinda going down my left arm too.",
+            "age": 58,
+            "known_conditions_raw": "high blood pressure, type 2 diabetes"
+        },
+        "ideal_output": {
+            "patient_id": "P001",
+            "chief_complaint": "chest pain",
+            "duration": "20 minutes",
+            "symptoms": [
+                "chest pain",
+                "shortness of breath",
+                "pain radiating to left arm",
+                "chest pressure"
+            ],
+            "age": 58,
+            "known_conditions": [
+                "hypertension",
+                "type 2 diabetes"
+            ],
+            "follow_up_answers": {
+                "pain_scale": "8/10",
+                "onset": "sudden",
+                "sweating": "yes",
+                "nausea": "yes"
+            },
+            "raw_transcript": "I've had this really bad chest pain for like the last 20 minutes and I can't breathe right. It's like this pressure and it's kinda going down my left arm too.",
+            "input_confidence": "high"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P001",
+            "chief_complaint": "chest pain",
+            "duration": "20 minutes",
+            "symptoms": [
+                "chest pain",
+                "shortness of breath",
+                "pain radiating to left arm",
+                "chest pressure"
+            ],
+            "age": 58,
+            "known_conditions": [
+                "hypertension",
+                "type 2 diabetes"
+            ],
+            "follow_up_answers": {
+                "pain_scale": "8/10",
+                "onset": "sudden",
+                "sweating": "yes",
+                "nausea": "yes"
+            },
+            "raw_transcript": "I've had this really bad chest pain for like the last 20 minutes and I can't breathe right. It's like this pressure and it's kinda going down my left arm too.",
+            "input_confidence": "high"
+        },
+        "ideal_output": {
+            "patient_id": "P001",
+            "priority": "emergency",
+            "red_flags_matched": [
+                "chest_pain_with_breathlessness"
+            ],
+            "decided_by": "rule",
+            "confidence": "high",
+            "escalation_required": true,
+            "priority_rationale": "Chest pain with radiation to the arm, shortness of breath, and sweating are classic warning signs of a possible cardiac event. Immediate emergency evaluation is required.",
+            "timestamp": "2026-09-21T10:15:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P001",
+                "chief_complaint": "chest pain",
+                "duration": "20 minutes",
+                "symptoms": [
+                    "chest pain",
+                    "shortness of breath",
+                    "pain radiating to left arm",
+                    "chest pressure"
+                ],
+                "age": 58,
+                "known_conditions": [
+                    "hypertension",
+                    "type 2 diabetes"
+                ],
+                "follow_up_answers": {
+                    "pain_scale": "8/10",
+                    "onset": "sudden",
+                    "sweating": "yes",
+                    "nausea": "yes"
+                },
+                "raw_transcript": "I've had really bad chest pain for the last 20 minutes and I can't breathe properly. It feels like pressure, kind of radiating to my left arm.",
+                "input_confidence": "high"
+            },
+            "triage_decision": {
+                "patient_id": "P001",
+                "priority": "emergency",
+                "red_flags_matched": [
+                    "chest_pain_with_breathlessness"
+                ],
+                "decided_by": "rule",
+                "confidence": "high",
+                "escalation_required": true,
+                "priority_rationale": "Chest pain with radiation to the arm, shortness of breath, and sweating are classic warning signs of a possible cardiac event. Immediate emergency evaluation is required.",
+                "timestamp": "2026-09-21T10:15:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P001",
+            "chief_complaint": "chest pain",
+            "duration": "20 minutes",
+            "red_flags": [
+                "chest_pain_with_breathlessness"
+            ],
+            "relevant_history": [
+                "hypertension",
+                "type 2 diabetes"
+            ],
+            "priority": "emergency",
+            "priority_rationale": "Chest pain with radiation to the arm, shortness of breath, and sweating are classic warning signs of a possible cardiac event. Immediate emergency evaluation is required.",
+            "timestamp": "2026-09-21T10:15:00Z"
+        }
+    }
+}

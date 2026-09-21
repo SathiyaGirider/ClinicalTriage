@@ -1,0 +1,127 @@
+{
+    "scenario_id": "06_regional_language_tamil_voice",
+    "description": "Regional-language voice input \u2014 patient speaks in Tamil describing high fever and body pain. Transcript is in Tamil script. System must extract symptoms correctly despite non-English input.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P006",
+            "input_type": "voice",
+            "language": "ta",
+            "raw_transcript": "\u0b8e\u0ba9\u0b95\u0bcd\u0b95\u0bc1 \u0b85\u0ba4\u0bbf\u0b95\u0bae\u0bbe\u0ba9 \u0b9c\u0bcd\u0bb5\u0bb0\u0bae\u0bcd \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb0\u0ba4\u0bc1, \u0b95\u0bb3\u0bc8\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0bc6\u0ba9\u0bcd. \u0bae\u0bc2\u0ba9\u0bcd\u0bb1\u0bc1 \u0ba8\u0bbe\u0bb3\u0bbe\u0b95 \u0b89\u0b9f\u0bae\u0bcd\u0baa\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1, \u0ba4\u0bb2\u0bc8 \u0b9a\u0bc1\u0bb1\u0bcd\u0bb1\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b9a\u0bbe\u0baa\u0bcd\u0baa\u0bbf\u0b9f \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8, \u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bc1 \u0b95\u0bc2\u0b9f \u0b95\u0bc1\u0b9f\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0b95\u0b9f\u0bcd\u0b9f\u0bc1\u0bb1\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b87\u0ba4\u0bc1 \u0b9f\u0bc6\u0b99\u0bcd\u0b95\u0bc1 \u0bae\u0bbe\u0ba4\u0bbf\u0bb0\u0bbf \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bbe \u0b87\u0bb2\u0bcd\u0bb2\u0bc8\u0baf\u0bbe \u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8.",
+            "age": 45,
+            "known_conditions_raw": "\u0b87\u0bb0\u0ba4\u0bcd\u0ba4 \u0b85\u0bb4\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bcd"
+        },
+        "ideal_output": {
+            "patient_id": "P006",
+            "chief_complaint": "high fever with body pain",
+            "duration": "3 days",
+            "symptoms": [
+                "high fever",
+                "severe fatigue",
+                "generalised body pain (myalgia)",
+                "headache and dizziness",
+                "inability to eat or drink (poor oral intake)",
+                "joint pain"
+            ],
+            "age": 45,
+            "known_conditions": [
+                "hypertension"
+            ],
+            "follow_up_answers": {
+                "rash": "unknown",
+                "bleeding_gums_or_nose": "unknown",
+                "pain_scale": "7/10",
+                "onset": "gradual"
+            },
+            "raw_transcript": "\u0b8e\u0ba9\u0b95\u0bcd\u0b95\u0bc1 \u0b85\u0ba4\u0bbf\u0b95\u0bae\u0bbe\u0ba9 \u0b9c\u0bcd\u0bb5\u0bb0\u0bae\u0bcd \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb0\u0ba4\u0bc1, \u0b95\u0bb3\u0bc8\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0bc6\u0ba9\u0bcd. \u0bae\u0bc2\u0ba9\u0bcd\u0bb1\u0bc1 \u0ba8\u0bbe\u0bb3\u0bbe\u0b95 \u0b89\u0b9f\u0bae\u0bcd\u0baa\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1, \u0ba4\u0bb2\u0bc8 \u0b9a\u0bc1\u0bb1\u0bcd\u0bb1\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b9a\u0bbe\u0baa\u0bcd\u0baa\u0bbf\u0b9f \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8, \u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bc1 \u0b95\u0bc2\u0b9f \u0b95\u0bc1\u0b9f\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0b95\u0b9f\u0bcd\u0b9f\u0bc1\u0bb1\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b87\u0ba4\u0bc1 \u0b9f\u0bc6\u0b99\u0bcd\u0b95\u0bc1 \u0bae\u0bbe\u0ba4\u0bbf\u0bb0\u0bbf \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bbe \u0b87\u0bb2\u0bcd\u0bb2\u0bc8\u0baf\u0bbe \u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8.",
+            "input_confidence": "medium"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P006",
+            "chief_complaint": "high fever with body pain",
+            "duration": "3 days",
+            "symptoms": [
+                "high fever",
+                "severe fatigue",
+                "generalised body pain (myalgia)",
+                "headache and dizziness",
+                "inability to eat or drink (poor oral intake)",
+                "joint pain"
+            ],
+            "age": 45,
+            "known_conditions": [
+                "hypertension"
+            ],
+            "follow_up_answers": {
+                "rash": "unknown",
+                "bleeding_gums_or_nose": "unknown",
+                "pain_scale": "7/10",
+                "onset": "gradual"
+            },
+            "raw_transcript": "\u0b8e\u0ba9\u0b95\u0bcd\u0b95\u0bc1 \u0b85\u0ba4\u0bbf\u0b95\u0bae\u0bbe\u0ba9 \u0b9c\u0bcd\u0bb5\u0bb0\u0bae\u0bcd \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb0\u0ba4\u0bc1, \u0b95\u0bb3\u0bc8\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0bc6\u0ba9\u0bcd. \u0bae\u0bc2\u0ba9\u0bcd\u0bb1\u0bc1 \u0ba8\u0bbe\u0bb3\u0bbe\u0b95 \u0b89\u0b9f\u0bae\u0bcd\u0baa\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1, \u0ba4\u0bb2\u0bc8 \u0b9a\u0bc1\u0bb1\u0bcd\u0bb1\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b9a\u0bbe\u0baa\u0bcd\u0baa\u0bbf\u0b9f \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8, \u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bc1 \u0b95\u0bc2\u0b9f \u0b95\u0bc1\u0b9f\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0b95\u0b9f\u0bcd\u0b9f\u0bc1\u0bb1\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b87\u0ba4\u0bc1 \u0b9f\u0bc6\u0b99\u0bcd\u0b95\u0bc1 \u0bae\u0bbe\u0ba4\u0bbf\u0bb0\u0bbf \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bbe \u0b87\u0bb2\u0bcd\u0bb2\u0bc8\u0baf\u0bbe \u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8.",
+            "input_confidence": "medium"
+        },
+        "ideal_output": {
+            "patient_id": "P006",
+            "priority": "same-day",
+            "red_flags_matched": [],
+            "decided_by": "llm",
+            "confidence": "medium",
+            "escalation_required": true,
+            "priority_rationale": "High fever persisting for 3 days with generalised body pain, joint pain, headache, and inability to maintain oral intake in a 45-year-old with hypertension warrants same-day evaluation. The symptom pattern \u2014 particularly the combination of high fever, severe myalgia, and poor oral intake \u2014 indicates a potentially serious febrile illness; absence of rash and bleeding-related history data limits confidence. Hypertension adds risk context. Escalation is recommended to obtain haematological review (including haematocrit and platelet count) and clinical assessment.",
+            "timestamp": "2026-09-21T10:40:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P006",
+                "chief_complaint": "high fever with body pain",
+                "duration": "3 days",
+                "symptoms": [
+                    "high fever",
+                    "severe fatigue",
+                    "generalised body pain (myalgia)",
+                    "headache and dizziness",
+                    "inability to eat or drink (poor oral intake)",
+                    "joint pain"
+                ],
+                "age": 45,
+                "known_conditions": [
+                    "hypertension"
+                ],
+                "follow_up_answers": {
+                    "rash": "unknown",
+                    "bleeding_gums_or_nose": "unknown",
+                    "pain_scale": "7/10",
+                    "onset": "gradual"
+                },
+                "raw_transcript": "\u0b8e\u0ba9\u0b95\u0bcd\u0b95\u0bc1 \u0b85\u0ba4\u0bbf\u0b95\u0bae\u0bbe\u0ba9 \u0b9c\u0bcd\u0bb5\u0bb0\u0bae\u0bcd \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb0\u0ba4\u0bc1, \u0b95\u0bb3\u0bc8\u0baa\u0bcd\u0baa\u0bbe\u0b95 \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0bc6\u0ba9\u0bcd. \u0bae\u0bc2\u0ba9\u0bcd\u0bb1\u0bc1 \u0ba8\u0bbe\u0bb3\u0bbe\u0b95 \u0b89\u0b9f\u0bae\u0bcd\u0baa\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bc1, \u0ba4\u0bb2\u0bc8 \u0b9a\u0bc1\u0bb1\u0bcd\u0bb1\u0bc1\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b9a\u0bbe\u0baa\u0bcd\u0baa\u0bbf\u0b9f \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8, \u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bc1 \u0b95\u0bc2\u0b9f \u0b95\u0bc1\u0b9f\u0bbf\u0b95\u0bcd\u0b95\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0b95\u0b9f\u0bcd\u0b9f\u0bc1\u0bb1\u0bc1 \u0bb5\u0bb2\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. \u0b87\u0ba4\u0bc1 \u0b9f\u0bc6\u0b99\u0bcd\u0b95\u0bc1 \u0bae\u0bbe\u0ba4\u0bbf\u0bb0\u0bbf \u0b87\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbf\u0bb1\u0ba4\u0bbe \u0b87\u0bb2\u0bcd\u0bb2\u0bc8\u0baf\u0bbe \u0ba4\u0bc6\u0bb0\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8.",
+                "input_confidence": "medium"
+            },
+            "triage_decision": {
+                "patient_id": "P006",
+                "priority": "same-day",
+                "red_flags_matched": [],
+                "decided_by": "llm",
+                "confidence": "medium",
+                "escalation_required": true,
+                "priority_rationale": "High fever persisting for 3 days with generalised body pain, joint pain, headache, and inability to maintain oral intake in a 45-year-old with hypertension warrants same-day evaluation. The symptom pattern \u2014 particularly the combination of high fever, severe myalgia, and poor oral intake \u2014 indicates a potentially serious febrile illness; absence of rash and bleeding-related history data limits confidence. Hypertension adds risk context. Escalation is recommended to obtain haematological review (including haematocrit and platelet count) and clinical assessment.",
+                "timestamp": "2026-09-21T10:40:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P006",
+            "chief_complaint": "high fever with body pain",
+            "duration": "3 days",
+            "red_flags": [],
+            "relevant_history": [
+                "hypertension"
+            ],
+            "priority": "same-day",
+            "priority_rationale": "High fever persisting for 3 days with generalised body pain, joint pain, headache, and inability to maintain oral intake in a 45-year-old with hypertension warrants same-day evaluation. The symptom pattern \u2014 particularly the combination of high fever, severe myalgia, and poor oral intake \u2014 indicates a potentially serious febrile illness; absence of rash and bleeding-related history data limits confidence. Hypertension adds risk context. Escalation is recommended to obtain haematological review (including haematocrit and platelet count) and clinical assessment.",
+            "timestamp": "2026-09-21T10:40:00Z"
+        }
+    }
+}
