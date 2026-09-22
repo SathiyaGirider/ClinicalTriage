@@ -3,11 +3,12 @@ LLM-based classification for non-emergency cases.
 
 Only runs when check_red_flags() returned None — i.e., no hardcoded
 red flag matched. Classifies the case as "same-day" or "routine" using
-an LLM, and reports the LLM's own confidence in that call.
+an LLM (via Groq), and reports the LLM's own confidence in that call.
 """
 
 import json
 import os
+import time
 
 import requests
 from dotenv import load_dotenv
@@ -16,12 +17,9 @@ from app.common.schemas import IntakeResult
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = "gemini-3.6-flash"
-GEMINI_API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    f"{GEMINI_MODEL}:generateContent"
-)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = "openai/gpt-oss-20b"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 USE_MOCK_LLM = os.getenv("USE_MOCK_LLM", "false").lower() == "true"
 
@@ -59,70 +57,76 @@ def _build_patient_text(intake: IntakeResult) -> str:
     )
 
 
-def classify_with_llm(intake_result: IntakeResult) -> tuple[str, str, str]:
-    """Call the Gemini API to classify patient urgency.
+def classify_with_llm(intake_result: IntakeResult, max_retries: int = 2) -> tuple[str, str, str]:
+    """Call the Groq API to classify patient urgency.
 
     Args:
         intake_result: Structured intake data for the patient.
+        max_retries: Number of retry attempts on timeout/connection errors.
 
     Returns:
         A tuple of (priority, confidence, reason) parsed from the LLM response.
 
     Raises:
-        RuntimeError: If the API key is missing, the API call fails,
-                      or the response cannot be parsed.
+        RuntimeError: If the API key is missing, the API call fails after
+                      retries, or the response cannot be parsed.
     """
     if USE_MOCK_LLM:
         return "same-day", "medium", "MOCKED response — real LLM not called."
 
-    if not GEMINI_API_KEY:
+    if not GROQ_API_KEY:
         raise RuntimeError(
-            "GEMINI_API_KEY is not set. Add it to your .env file."
+            "GROQ_API_KEY is not set. Add it to your .env file."
         )
 
     patient_text = _build_patient_text(intake_result)
 
     payload = {
-        "system_instruction": {
-            "parts": [{"text": SYSTEM_INSTRUCTIONS}]
-        },
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": patient_text}],
-            }
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": SYSTEM_INSTRUCTIONS},
+            {"role": "user", "content": patient_text},
         ],
-        "generationConfig": {
-            "temperature": 0.2,
-            "responseMimeType": "application/json",
-        },
+        "temperature": 0.2,
+        "response_format": {"type": "json_object"},
     }
 
-    response = requests.post(
-        GEMINI_API_URL,
-        params={"key": GEMINI_API_KEY},
-        json=payload,
-        timeout=30,
-    )
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
 
-    if not response.ok:
-        raise RuntimeError(
-            f"Gemini API request failed [{response.status_code}]: {response.text}"
-        )
+    last_error = None
+    for attempt in range(max_retries + 1):
+        try:
+            response = requests.post(
+                GROQ_API_URL,
+                headers=headers,
+                json=payload,
+                timeout=60,
+            )
 
-    response_data = response.json()
+            if not response.ok:
+                raise RuntimeError(
+                    f"Groq API request failed [{response.status_code}]: {response.text}"
+                )
 
-    try:
-        raw_text = (
-            response_data["candidates"][0]["content"]["parts"][0]["text"]
-        )
-        result = json.loads(raw_text)
-        priority: str = result["priority"]
-        confidence: str = result["confidence"]
-        reason: str = result["reason"]
-    except (KeyError, IndexError, json.JSONDecodeError) as exc:
-        raise RuntimeError(
-            f"Failed to parse Gemini response: {exc}\nRaw response: {response_data}"
-        ) from exc
+            response_data = response.json()
+            raw_text = response_data["choices"][0]["message"]["content"]
+            result = json.loads(raw_text)
 
-    return priority, confidence, reason
+            return result["priority"], result["confidence"], result["reason"]
+
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+            last_error = exc
+            if attempt < max_retries:
+                time.sleep(2)
+                continue
+            raise RuntimeError(
+                f"Groq API failed after {max_retries + 1} attempts: {last_error}"
+            ) from last_error
+
+        except (KeyError, IndexError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"Failed to parse Groq response: {exc}\nRaw response: {response_data}"
+            ) from exc
