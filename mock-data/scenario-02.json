@@ -1,0 +1,131 @@
+{
+    "scenario_id": "02_emergency_stroke",
+    "description": "Stroke emergency \u2014 sudden facial drooping, slurred speech, and arm weakness. Should trigger a neurological red flag and route to Emergency.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P002",
+            "input_type": "voice",
+            "language": "en",
+            "raw_transcript": "My husband \u2014 something is wrong with him, please help. He was just sitting at the table and then suddenly his face just went all droopy on one side, he\u2019s trying to talk but it\u2019s not coming out right, like he\u2019s slurring. And when I told him to raise both his arms he could only lift one. This just happened maybe five minutes ago.",
+            "age": 63,
+            "known_conditions_raw": "atrial fibrillation, high cholesterol"
+        },
+        "ideal_output": {
+            "patient_id": "P002",
+            "chief_complaint": "sudden facial drooping and slurred speech",
+            "duration": "5 minutes",
+            "symptoms": [
+                "facial drooping on one side",
+                "slurred speech",
+                "arm weakness (unilateral)",
+                "sudden onset"
+            ],
+            "age": 63,
+            "known_conditions": [
+                "atrial fibrillation",
+                "hypercholesterolaemia"
+            ],
+            "follow_up_answers": {
+                "onset": "sudden",
+                "confusion": "yes",
+                "vision_changes": "unknown",
+                "headache": "unknown"
+            },
+            "raw_transcript": "My husband \u2014 something is wrong with him, please help. He was just sitting at the table and then suddenly his face just went all droopy on one side, he\u2019s trying to talk but it\u2019s not coming out right, like he\u2019s slurring. And when I told him to raise both his arms he could only lift one. This just happened maybe five minutes ago.",
+            "input_confidence": "high"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P002",
+            "chief_complaint": "sudden facial drooping and slurred speech",
+            "duration": "5 minutes",
+            "symptoms": [
+                "facial drooping on one side",
+                "slurred speech",
+                "arm weakness (unilateral)",
+                "sudden onset"
+            ],
+            "age": 63,
+            "known_conditions": [
+                "atrial fibrillation",
+                "hypercholesterolaemia"
+            ],
+            "follow_up_answers": {
+                "onset": "sudden",
+                "confusion": "yes",
+                "vision_changes": "unknown",
+                "headache": "unknown"
+            },
+            "raw_transcript": "My husband \u2014 something is wrong with him, please help. He was just sitting at the table and then suddenly his face just went all droopy on one side, he\u2019s trying to talk but it\u2019s not coming out right, like he\u2019s slurring. And when I told him to raise both his arms he could only lift one. This just happened maybe five minutes ago.",
+            "input_confidence": "high"
+        },
+        "ideal_output": {
+            "patient_id": "P002",
+            "priority": "emergency",
+            "red_flags_matched": [
+                "stroke_signs"
+            ],
+            "decided_by": "rule",
+            "confidence": "high",
+            "escalation_required": true,
+            "priority_rationale": "Classic FAST warning signs are present: facial drooping on one side, unilateral arm weakness, and slurred speech, all with sudden onset within 5 minutes. A background of atrial fibrillation significantly elevates the risk of acute cardioembolic events. This is a time-critical neurological emergency \u2014 immediate evaluation by emergency services is required without delay.",
+            "timestamp": "2026-09-21T10:20:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P002",
+                "chief_complaint": "sudden facial drooping and slurred speech",
+                "duration": "5 minutes",
+                "symptoms": [
+                    "facial drooping on one side",
+                    "slurred speech",
+                    "arm weakness (unilateral)",
+                    "sudden onset"
+                ],
+                "age": 63,
+                "known_conditions": [
+                    "atrial fibrillation",
+                    "hypercholesterolaemia"
+                ],
+                "follow_up_answers": {
+                    "onset": "sudden",
+                    "confusion": "yes",
+                    "vision_changes": "unknown",
+                    "headache": "unknown"
+                },
+                "raw_transcript": "My husband \u2014 something is wrong with him, please help. He was just sitting at the table and then suddenly his face just went all droopy on one side, he\u2019s trying to talk but it\u2019s not coming out right, like he\u2019s slurring. And when I told him to raise both his arms he could only lift one. This just happened maybe five minutes ago.",
+                "input_confidence": "high"
+            },
+            "triage_decision": {
+                "patient_id": "P002",
+                "priority": "emergency",
+                "red_flags_matched": [
+                    "stroke_signs"
+                ],
+                "decided_by": "rule",
+                "confidence": "high",
+                "escalation_required": true,
+                "priority_rationale": "Classic FAST warning signs are present: facial drooping on one side, unilateral arm weakness, and slurred speech, all with sudden onset within 5 minutes. A background of atrial fibrillation significantly elevates the risk of acute cardioembolic events. This is a time-critical neurological emergency \u2014 immediate evaluation by emergency services is required without delay.",
+                "timestamp": "2026-09-21T10:20:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P002",
+            "chief_complaint": "sudden facial drooping and slurred speech",
+            "duration": "5 minutes",
+            "red_flags": [
+                "stroke_signs"
+            ],
+            "relevant_history": [
+                "atrial fibrillation",
+                "hypercholesterolaemia"
+            ],
+            "priority": "emergency",
+            "priority_rationale": "Classic FAST warning signs are present: facial drooping on one side, unilateral arm weakness, and slurred speech, all with sudden onset within 5 minutes. A background of atrial fibrillation significantly elevates the risk of acute cardioembolic events. This is a time-critical neurological emergency \u2014 immediate evaluation by emergency services is required without delay.",
+            "timestamp": "2026-09-21T10:20:00Z"
+        }
+    }
+}

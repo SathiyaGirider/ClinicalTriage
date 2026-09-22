@@ -1,0 +1,110 @@
+{
+    "scenario_id": "03_same_day_laceration",
+    "description": "Same-day priority \u2014 deep laceration on the hand requiring stitches. Bleeding is controlled but wound depth is concerning. Not immediately life-threatening.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P003",
+            "input_type": "text",
+            "language": "en",
+            "raw_transcript": "I cut my hand pretty bad while chopping vegetables about an hour ago. I\u2019ve got a cloth wrapped around it and the bleeding has mostly stopped, but the cut looks really deep and long, maybe like 4 centimetres? I don\u2019t think it\u2019ll close on its own. No numbness or anything weird, I can still move my fingers fine.",
+            "age": 34,
+            "known_conditions_raw": "none"
+        },
+        "ideal_output": {
+            "patient_id": "P003",
+            "chief_complaint": "deep laceration on hand",
+            "duration": "1 hour",
+            "symptoms": [
+                "deep laceration approximately 4 cm",
+                "bleeding (now controlled)",
+                "wound likely requires sutures"
+            ],
+            "age": 34,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "bleeding_status": "controlled",
+                "neurovascular_integrity": "intact",
+                "tendon_involvement": "no",
+                "tetanus_status": "unknown"
+            },
+            "raw_transcript": "I cut my hand pretty bad while chopping vegetables about an hour ago. I\u2019ve got a cloth wrapped around it and the bleeding has mostly stopped, but the cut looks really deep and long, maybe like 4 centimetres? I don\u2019t think it\u2019ll close on its own. No numbness or anything weird, I can still move my fingers fine.",
+            "input_confidence": "high"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P003",
+            "chief_complaint": "deep laceration on hand",
+            "duration": "1 hour",
+            "symptoms": [
+                "deep laceration approximately 4 cm",
+                "bleeding (now controlled)",
+                "wound likely requires sutures"
+            ],
+            "age": 34,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "bleeding_status": "controlled",
+                "neurovascular_integrity": "intact",
+                "tendon_involvement": "no",
+                "tetanus_status": "unknown"
+            },
+            "raw_transcript": "I cut my hand pretty bad while chopping vegetables about an hour ago. I\u2019ve got a cloth wrapped around it and the bleeding has mostly stopped, but the cut looks really deep and long, maybe like 4 centimetres? I don\u2019t think it\u2019ll close on its own. No numbness or anything weird, I can still move my fingers fine.",
+            "input_confidence": "high"
+        },
+        "ideal_output": {
+            "patient_id": "P003",
+            "priority": "same-day",
+            "red_flags_matched": [],
+            "decided_by": "llm",
+            "confidence": "high",
+            "escalation_required": false,
+            "priority_rationale": "A deep 4 cm laceration with controlled bleeding, intact sensation and movement warrants same-day evaluation for wound closure. No immediate life threat, but delayed suturing increases infection risk and may compromise healing. Neurovascular status appears intact.",
+            "timestamp": "2026-09-21T10:25:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P003",
+                "chief_complaint": "deep laceration on hand",
+                "duration": "1 hour",
+                "symptoms": [
+                    "deep laceration approximately 4 cm",
+                    "bleeding (now controlled)",
+                    "wound likely requires sutures"
+                ],
+                "age": 34,
+                "known_conditions": [],
+                "follow_up_answers": {
+                    "bleeding_status": "controlled",
+                    "neurovascular_integrity": "intact",
+                    "tendon_involvement": "no",
+                    "tetanus_status": "unknown"
+                },
+                "raw_transcript": "I cut my hand pretty bad while chopping vegetables about an hour ago. I\u2019ve got a cloth wrapped around it and the bleeding has mostly stopped, but the cut looks really deep and long, maybe like 4 centimetres? I don\u2019t think it\u2019ll close on its own. No numbness or anything weird, I can still move my fingers fine.",
+                "input_confidence": "high"
+            },
+            "triage_decision": {
+                "patient_id": "P003",
+                "priority": "same-day",
+                "red_flags_matched": [],
+                "decided_by": "llm",
+                "confidence": "high",
+                "escalation_required": false,
+                "priority_rationale": "A deep 4 cm laceration with controlled bleeding, intact sensation and movement warrants same-day evaluation for wound closure. No immediate life threat, but delayed suturing increases infection risk and may compromise healing. Neurovascular status appears intact.",
+                "timestamp": "2026-09-21T10:25:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P003",
+            "chief_complaint": "deep laceration on hand",
+            "duration": "1 hour",
+            "red_flags": [],
+            "relevant_history": [],
+            "priority": "same-day",
+            "priority_rationale": "A deep 4 cm laceration with controlled bleeding, intact sensation and movement warrants same-day evaluation for wound closure. No immediate life threat, but delayed suturing increases infection risk and may compromise healing. Neurovascular status appears intact.",
+            "timestamp": "2026-09-21T10:25:00Z"
+        }
+    }
+}

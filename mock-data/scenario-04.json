@@ -1,0 +1,116 @@
+{
+    "scenario_id": "04_routine_mild_cold",
+    "description": "Routine priority \u2014 mild cold symptoms with no red flags. Runny nose, sore throat, mild fatigue. Non-urgent.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P004",
+            "input_type": "text",
+            "language": "en",
+            "raw_transcript": "Hi, I\u2019ve had a runny nose and a sore throat since yesterday evening. I\u2019m a bit tired but not feverish or anything. No cough really, just sneezing a lot. I\u2019m guessing it\u2019s just a regular cold. Should I be worried?",
+            "age": 27,
+            "known_conditions_raw": "none"
+        },
+        "ideal_output": {
+            "patient_id": "P004",
+            "chief_complaint": "runny nose and sore throat",
+            "duration": "1 day",
+            "symptoms": [
+                "runny nose",
+                "sore throat",
+                "mild fatigue",
+                "sneezing",
+                "no fever"
+            ],
+            "age": 27,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "fever": "no",
+                "cough": "no",
+                "shortness_of_breath": "no",
+                "pain_scale": "2/10"
+            },
+            "raw_transcript": "Hi, I\u2019ve had a runny nose and a sore throat since yesterday evening. I\u2019m a bit tired but not feverish or anything. No cough really, just sneezing a lot. I\u2019m guessing it\u2019s just a regular cold. Should I be worried?",
+            "input_confidence": "high"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P004",
+            "chief_complaint": "runny nose and sore throat",
+            "duration": "1 day",
+            "symptoms": [
+                "runny nose",
+                "sore throat",
+                "mild fatigue",
+                "sneezing",
+                "no fever"
+            ],
+            "age": 27,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "fever": "no",
+                "cough": "no",
+                "shortness_of_breath": "no",
+                "pain_scale": "2/10"
+            },
+            "raw_transcript": "Hi, I\u2019ve had a runny nose and a sore throat since yesterday evening. I\u2019m a bit tired but not feverish or anything. No cough really, just sneezing a lot. I\u2019m guessing it\u2019s just a regular cold. Should I be worried?",
+            "input_confidence": "high"
+        },
+        "ideal_output": {
+            "patient_id": "P004",
+            "priority": "routine",
+            "red_flags_matched": [],
+            "decided_by": "llm",
+            "confidence": "high",
+            "escalation_required": false,
+            "priority_rationale": "Mild symptoms of runny nose, sore throat, sneezing, and low-grade fatigue present for approximately one day in a young adult with no known comorbidities. No fever, no respiratory distress, and no red flags identified. Routine assessment is appropriate; patient should be advised on symptomatic management and to return if symptoms worsen or new symptoms develop.",
+            "timestamp": "2026-09-21T10:30:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P004",
+                "chief_complaint": "runny nose and sore throat",
+                "duration": "1 day",
+                "symptoms": [
+                    "runny nose",
+                    "sore throat",
+                    "mild fatigue",
+                    "sneezing",
+                    "no fever"
+                ],
+                "age": 27,
+                "known_conditions": [],
+                "follow_up_answers": {
+                    "fever": "no",
+                    "cough": "no",
+                    "shortness_of_breath": "no",
+                    "pain_scale": "2/10"
+                },
+                "raw_transcript": "Hi, I\u2019ve had a runny nose and a sore throat since yesterday evening. I\u2019m a bit tired but not feverish or anything. No cough really, just sneezing a lot. I\u2019m guessing it\u2019s just a regular cold. Should I be worried?",
+                "input_confidence": "high"
+            },
+            "triage_decision": {
+                "patient_id": "P004",
+                "priority": "routine",
+                "red_flags_matched": [],
+                "decided_by": "llm",
+                "confidence": "high",
+                "escalation_required": false,
+                "priority_rationale": "Mild symptoms of runny nose, sore throat, sneezing, and low-grade fatigue present for approximately one day in a young adult with no known comorbidities. No fever, no respiratory distress, and no red flags identified. Routine assessment is appropriate; patient should be advised on symptomatic management and to return if symptoms worsen or new symptoms develop.",
+                "timestamp": "2026-09-21T10:30:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P004",
+            "chief_complaint": "runny nose and sore throat",
+            "duration": "1 day",
+            "red_flags": [],
+            "relevant_history": [],
+            "priority": "routine",
+            "priority_rationale": "Mild symptoms of runny nose, sore throat, sneezing, and low-grade fatigue present for approximately one day in a young adult with no known comorbidities. No fever, no respiratory distress, and no red flags identified. Routine assessment is appropriate; patient should be advised on symptomatic management and to return if symptoms worsen or new symptoms develop.",
+            "timestamp": "2026-09-21T10:30:00Z"
+        }
+    }
+}

@@ -1,0 +1,119 @@
+{
+    "scenario_id": "05_ambiguous_abdominal_pain",
+    "description": "Ambiguous/uncertain case \u2014 right lower quadrant abdominal pain that could be appendicitis, muscle strain, or ovarian cyst. Low-to-medium confidence, escalation required.",
+    "stageA": {
+        "mock_input": {
+            "patient_id": "P005",
+            "input_type": "voice",
+            "language": "en",
+            "raw_transcript": "I\u2019ve been having this pain on my lower right side for about two days. It kind of comes and goes. Sometimes it\u2019s pretty sharp and other times it\u2019s just like a dull ache. I\u2019m not running a fever or anything, and I did go to the bathroom fine today. But it did get worse when I walked. I\u2019m 22, female. I don\u2019t know if it\u2019s something serious or if I just pulled a muscle or something.",
+            "age": 22,
+            "known_conditions_raw": "none"
+        },
+        "ideal_output": {
+            "patient_id": "P005",
+            "chief_complaint": "right lower quadrant abdominal pain",
+            "duration": "2 days",
+            "symptoms": [
+                "right lower quadrant pain",
+                "intermittent sharp and dull ache",
+                "pain worsens with movement",
+                "no fever",
+                "normal bowel movement"
+            ],
+            "age": 22,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "fever": "no",
+                "nausea_vomiting": "no",
+                "rebound_tenderness": "unknown",
+                "last_menstrual_period": "unknown",
+                "pain_scale": "5/10"
+            },
+            "raw_transcript": "I\u2019ve been having this pain on my lower right side for about two days. It kind of comes and goes. Sometimes it\u2019s pretty sharp and other times it\u2019s just like a dull ache. I\u2019m not running a fever or anything, and I did go to the bathroom fine today. But it did get worse when I walked. I\u2019m 22, female. I don\u2019t know if it\u2019s something serious or if I just pulled a muscle or something.",
+            "input_confidence": "medium"
+        }
+    },
+    "stageB": {
+        "mock_input": {
+            "patient_id": "P005",
+            "chief_complaint": "right lower quadrant abdominal pain",
+            "duration": "2 days",
+            "symptoms": [
+                "right lower quadrant pain",
+                "intermittent sharp and dull ache",
+                "pain worsens with movement",
+                "no fever",
+                "normal bowel movement"
+            ],
+            "age": 22,
+            "known_conditions": [],
+            "follow_up_answers": {
+                "fever": "no",
+                "nausea_vomiting": "no",
+                "rebound_tenderness": "unknown",
+                "last_menstrual_period": "unknown",
+                "pain_scale": "5/10"
+            },
+            "raw_transcript": "I\u2019ve been having this pain on my lower right side for about two days. It kind of comes and goes. Sometimes it\u2019s pretty sharp and other times it\u2019s just like a dull ache. I\u2019m not running a fever or anything, and I did go to the bathroom fine today. But it did get worse when I walked. I\u2019m 22, female. I don\u2019t know if it\u2019s something serious or if I just pulled a muscle or something.",
+            "input_confidence": "medium"
+        },
+        "ideal_output": {
+            "patient_id": "P005",
+            "priority": "same-day",
+            "red_flags_matched": [],
+            "decided_by": "llm",
+            "confidence": "low",
+            "escalation_required": true,
+            "priority_rationale": "Right lower quadrant pain in a young woman lasting 2 days with movement-related aggravation raises a differential including early appendicitis, ovarian pathology (cyst, torsion), or musculoskeletal strain. Absence of fever and normal bowel habit are reassuring but do not exclude surgical causes. LMP and rebound tenderness are unknown, preventing definitive ruling out of ectopic pregnancy or peritoneal irritation. Low confidence \u2014 escalation to physician review is required before downgrading.",
+            "timestamp": "2026-09-21T10:35:00Z"
+        }
+    },
+    "stageC": {
+        "mock_input": {
+            "intake_result": {
+                "patient_id": "P005",
+                "chief_complaint": "right lower quadrant abdominal pain",
+                "duration": "2 days",
+                "symptoms": [
+                    "right lower quadrant pain",
+                    "intermittent sharp and dull ache",
+                    "pain worsens with movement",
+                    "no fever",
+                    "normal bowel movement"
+                ],
+                "age": 22,
+                "known_conditions": [],
+                "follow_up_answers": {
+                    "fever": "no",
+                    "nausea_vomiting": "no",
+                    "rebound_tenderness": "unknown",
+                    "last_menstrual_period": "unknown",
+                    "pain_scale": "5/10"
+                },
+                "raw_transcript": "I\u2019ve been having this pain on my lower right side for about two days. It kind of comes and goes. Sometimes it\u2019s pretty sharp and other times it\u2019s just like a dull ache. I\u2019m not running a fever or anything, and I did go to the bathroom fine today. But it did get worse when I walked. I\u2019m 22, female. I don\u2019t know if it\u2019s something serious or if I just pulled a muscle or something.",
+                "input_confidence": "medium"
+            },
+            "triage_decision": {
+                "patient_id": "P005",
+                "priority": "same-day",
+                "red_flags_matched": [],
+                "decided_by": "llm",
+                "confidence": "low",
+                "escalation_required": true,
+                "priority_rationale": "Right lower quadrant pain in a young woman lasting 2 days with movement-related aggravation raises a differential including early appendicitis, ovarian pathology (cyst, torsion), or musculoskeletal strain. Absence of fever and normal bowel habit are reassuring but do not exclude surgical causes. LMP and rebound tenderness are unknown, preventing definitive ruling out of ectopic pregnancy or peritoneal irritation. Low confidence \u2014 escalation to physician review is required before downgrading.",
+                "timestamp": "2026-09-21T10:35:00Z"
+            }
+        },
+        "ideal_output": {
+            "patient_id": "P005",
+            "chief_complaint": "right lower quadrant abdominal pain",
+            "duration": "2 days",
+            "red_flags": [],
+            "relevant_history": [],
+            "priority": "same-day",
+            "priority_rationale": "Right lower quadrant pain in a young woman lasting 2 days with movement-related aggravation raises a differential including early appendicitis, ovarian pathology (cyst, torsion), or musculoskeletal strain. Absence of fever and normal bowel habit are reassuring but do not exclude surgical causes. LMP and rebound tenderness are unknown, preventing definitive ruling out of ectopic pregnancy or peritoneal irritation. Low confidence \u2014 escalation to physician review is required before downgrading.",
+            "timestamp": "2026-09-21T10:35:00Z"
+        }
+    }
+}
