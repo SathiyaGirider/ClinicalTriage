@@ -1,0 +1,32 @@
+{
+  "scenario_id": "MOCK-INTAKE-06-EN-TRAUMA",
+  "description": "Acute traumatic emergency following road traffic accident with head injury",
+  "request": {
+    "raw_transcript": "I was involved in a road traffic accident about 45 minutes ago. A car struck in my lane and I hit my head on the pavement. I have a deep cut on my forehead and cannot move my arm.",
+    "language": "en",
+    "patient_id": "PT-MOCK-006",
+    "age": 32,
+    "known_conditions": [],
+    "follow_up_answers": {
+      "severity": "9 out of 10",
+      "onset": "Suddenly, 45 minutes ago during collision"
+    }
+  },
+  "expected_intake_result": {
+    "patient_id": "PT-MOCK-006",
+    "chief_complaint": "Severe injury / traumatic emergency",
+    "duration": "45 minutes ago",
+    "symptoms": [
+      "Severe injury / traumatic emergency"
+    ],
+    "age": 32,
+    "known_conditions": [],
+    "follow_up_answers": {
+      "severity": "9 out of 10",
+      "onset": "Suddenly, 45 minutes ago during collision"
+    },
+    "raw_transcript": "I was involved in a road traffic accident about 45 minutes ago. A car struck in my lane and I hit my head on the pavement. I have a deep cut on my forehead and cannot move my arm.",
+    "input_confidence": "high"
+  },
+  "expected_red_flags": ["severe_trauma"]
+}
