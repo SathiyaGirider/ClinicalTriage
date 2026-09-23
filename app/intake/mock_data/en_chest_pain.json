@@ -1,0 +1,34 @@
+{
+  "scenario_id": "MOCK-INTAKE-01-EN-CHEST",
+  "description": "Acute chest pain emergency in English with cardiac history",
+  "request": {
+    "raw_transcript": "I have been having intense crushing chest pain and pressure for the past 2 hours. It is radiating down my left arm and up to my jaw. I also feel dizzy and short of breath.",
+    "language": "en",
+    "patient_id": "PT-MOCK-001",
+    "age": 58,
+    "known_conditions": ["Hypertension", "Hyperlipidemia"],
+    "follow_up_answers": {
+      "severity": "8 out of 10",
+      "medications": "Took 1 aspirin 30 mins ago"
+    }
+  },
+  "expected_intake_result": {
+    "patient_id": "PT-MOCK-001",
+    "chief_complaint": "Chest pain / discomfort",
+    "duration": "past 2 hours",
+    "symptoms": [
+      "Chest pain / discomfort",
+      "Shortness of breath / respiratory distress",
+      "Dizziness"
+    ],
+    "age": 58,
+    "known_conditions": ["Hyperlipidemia", "Hypertension"],
+    "follow_up_answers": {
+      "severity": "8 out of 10",
+      "medications": "Took 1 aspirin 30 mins ago"
+    },
+    "raw_transcript": "I have been having intense crushing chest pain and pressure for the past 2 hours. It is radiating down my left arm and up to my jaw. I also feel dizzy and short of breath.",
+    "input_confidence": "high"
+  },
+  "expected_red_flags": ["chest_pain", "shortness_of_breath"]
+}

@@ -1,0 +1,672 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRIMARY HEALTH CENTRE (PHC) KIOSK — STRICT DESIGN SYSTEM
+   Rule: No colors outside the 7 canonical CSS variables may appear anywhere.
+   Typography sizes: 14px, 16px, 20px, 28px, 36px only.
+   Typography weights: 400 (body), 600 (emphasis/labels), 700 (PHC title & active question only).
+   Spacing: Multiples of 8px (0, 8px, 16px, 24px, 32px, 48px).
+   Radii: 4px (interactive), 0px (structural).
+   Zero box-shadow. Zero glowing/pulsing animations.
+═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --accent:        #0F6F6F;
+  --ink:           #1A1F24;
+  --ink-secondary: #5B6570;
+  --bg:            #F4F6F7;
+  --surface:       #FFFFFF;
+  --border:        #E1E5E8;
+  --urgent:        #B3261E;
+
+  --font-en: 'Inter', sans-serif;
+  --font-ta: 'Noto Sans Tamil', 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-en);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   APP SHELL
+───────────────────────────────────────────────────────────────────────── */
+.kiosk-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HEADER BAR
+   Flat, full-width, bottom-border only (0px radius).
+   The cross emblem sits directly on the header background (no box container).
+───────────────────────────────────────────────────────────────────────── */
+.phc-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.phc-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+/* Cross emblem sits directly on header background with no container shape */
+.phc-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  border-radius: 0px;
+  flex-shrink: 0;
+}
+
+.phc-emblem svg {
+  display: block;
+}
+
+.phc-brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+/* PHC Name: 700 weight reserved exclusively */
+.phc-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: var(--font-ta);
+}
+
+.phc-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+.header-right {
+  position: absolute;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Unified Badge Pattern: small uppercase text + colored 3px left-border, directly on surface */
+.session-lang-tag {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  border-left: 3px solid var(--accent);
+  border-radius: 0px;
+  padding: 0 0 0 8px;
+  line-height: 1;
+}
+
+/* Secondary Action: plain text, 1px border, 4px radius, no fill, no shadow */
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  background: transparent;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 16px;
+  transition: transform 0.1s ease;
+}
+
+.nav-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-secondary);
+}
+
+.nav-btn:active {
+  transform: scale(0.98);
+}
+
+/* Notice Bar: calm warning strip, bottom border only */
+.kiosk-notice {
+  background: var(--surface);
+  border-bottom: 1px solid var(--urgent);
+  border-left: 3px solid var(--urgent);
+  color: var(--urgent);
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  flex-shrink: 0;
+  border-radius: 0px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   WORKSPACE & STATE TRANSITIONS
+   Transitions: 200ms ease-out, fade + 8px slide
+───────────────────────────────────────────────────────────────────────── */
+.kiosk-workspace {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  background: var(--bg);
+  border-radius: 0px;
+}
+
+.kiosk-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 0px;
+  animation: panelSlideIn 200ms ease-out both;
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SCREEN 0 — IDLE
+   Primary Action: The entire visual region IS the tap target.
+───────────────────────────────────────────────────────────────────────── */
+.idle-tap-region {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 48px 24px;
+  text-align: center;
+  transition: transform 0.1s ease;
+}
+
+.idle-tap-region:active {
+  transform: scale(0.98);
+}
+
+.idle-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  pointer-events: none;
+}
+
+.idle-phc-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  font-family: var(--font-ta);
+  letter-spacing: 0.02em;
+}
+
+.idle-cta-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 48px;
+  background: var(--accent);
+  color: var(--surface);
+  border-radius: 4px;
+}
+
+.btn-primary-text {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--surface);
+  letter-spacing: -0.01em;
+}
+
+.btn-secondary-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--surface);
+  font-family: var(--font-ta);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SCREEN 1 — LANGUAGE SELECTION
+   Full-height split. Each half is a full tap target (4px radius).
+───────────────────────────────────────────────────────────────────────── */
+.lang-split {
+  flex-direction: row;
+  border-radius: 0px;
+}
+
+.lang-half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 48px 24px;
+  transition: transform 0.1s ease;
+}
+
+.lang-half.lang-en-half {
+  border-right: 1px solid var(--border);
+}
+
+.lang-half.lang-ta-half {
+  background: var(--surface);
+}
+
+.lang-half:active {
+  transform: scale(0.98);
+}
+
+.lang-half-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Unified Badge Pattern for Language Code */
+.lang-half-code {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-left: 3px solid var(--accent);
+  padding: 0 0 0 8px;
+  line-height: 1;
+}
+
+.lang-half-name {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.lang-tap-cue {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-secondary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-top: 8px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SCREEN 2 — CONVERSATION VIEW
+   Information-forward layout.
+───────────────────────────────────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 0px;
+  flex-shrink: 0;
+}
+
+.status-indicator-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Static, solid-colored dot marker — NO pulsing/glowing animations */
+.status-pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.status-pip.speaking   { background: var(--accent); }
+.status-pip.listening  { background: var(--urgent); }
+.status-pip.processing { background: var(--ink-secondary); }
+
+.status-label-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.status-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-repeat-question {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.btn-repeat-question:hover {
+  background: var(--surface);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-repeat-question svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.step-tag {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+/* Active Question Area — left-aligned, no card wrapper */
+.question-area {
+  flex: 1;
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--bg);
+  border-radius: 0px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Active Question Text: 700 weight reserved exclusively */
+.question-text {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink);
+  font-family: var(--font-ta);
+  max-width: 840px;
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.question-text.fade-out {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.question-text.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Patient Response Area — Editorial quote treatment:
+   3px solid left-border accent strip, text sitting directly on surface,
+   NO card wrapper, NO rounded container. */
+.patient-response-area {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.response-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Mic line icon sits directly on the surface with NO container shape */
+.mic-icon-direct {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 0px;
+  flex-shrink: 0;
+}
+
+.mic-icon-direct.listening {
+  color: var(--urgent);
+}
+
+.response-area-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-secondary);
+}
+
+.patient-transcript-text {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink);
+  font-family: var(--font-ta);
+  line-height: 1.5;
+  min-height: 24px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SCREEN 3 — CLOSING VIEW
+   Centered content on bare workspace surface.
+   No white card, no shadow.
+───────────────────────────────────────────────────────────────────────── */
+.closing-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--bg);
+  border-radius: 0px;
+}
+
+/* Emergency State: sharp border-left indicator */
+.closing-card.emergency {
+  border-left: 3px solid var(--urgent);
+}
+
+/* Unified Badge Pattern */
+.closing-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-left: 3px solid var(--accent);
+  padding: 0 0 0 8px;
+  margin-bottom: 16px;
+  border-radius: 0px;
+}
+
+.closing-header-badge .badge-dot {
+  display: none;
+}
+
+.closing-header-badge.emergency {
+  color: var(--urgent);
+  border-left-color: var(--urgent);
+}
+
+.closing-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.closing-title.emergency {
+  color: var(--urgent);
+}
+
+.closing-instruction {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+  font-family: var(--font-ta);
+  max-width: 560px;
+  margin-bottom: 24px;
+}
+
+/* Token Display: Flat, unboxed, text sitting directly on page background */
+.phc-token-box {
+  text-align: center;
+  padding: 0;
+  border: none;
+  border-radius: 0px;
+  background: transparent;
+  margin-bottom: 24px;
+}
+
+.phc-token-box.emergency {
+  border: none;
+}
+
+.token-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  margin-bottom: 8px;
+}
+
+.token-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.phc-token-box.emergency .token-value {
+  color: var(--urgent);
+}
+
+
+.token-note {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-secondary);
+  margin-top: 8px;
+}
+
+.closing-timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Structural progress track & fill: 0px radius */
+.timer-bar-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 0px;
+  overflow: hidden;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 0px;
+  transition: width 6s linear;
+}
+
+.timer-hint {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-secondary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────────────────────────────────── */
+.ta-font { font-family: var(--font-ta) !important; }
+.hidden  { display: none !important; }

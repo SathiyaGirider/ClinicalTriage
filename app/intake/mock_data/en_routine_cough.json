@@ -1,0 +1,24 @@
+{
+  "scenario_id": "MOCK-INTAKE-03-EN-ROUTINE",
+  "description": "Routine cold and dry cough in English",
+  "request": {
+    "raw_transcript": "I have had a mild dry cough and slight runny nose for about 4 days. No chest pain or fever, just feeling tired.",
+    "language": "en",
+    "patient_id": "PT-MOCK-003",
+    "age": 28,
+    "known_conditions": [],
+    "follow_up_answers": {}
+  },
+  "expected_intake_result": {
+    "patient_id": "PT-MOCK-003",
+    "chief_complaint": "Dry cough",
+    "duration": "about 4 days",
+    "symptoms": ["Dry cough", "Cough", "Rhinorrhea / runny nose", "Fatigue / generalized weakness"],
+    "age": 28,
+    "known_conditions": [],
+    "follow_up_answers": {},
+    "raw_transcript": "I have had a mild dry cough and slight runny nose for about 4 days. No chest pain or fever, just feeling tired.",
+    "input_confidence": "high"
+  },
+  "expected_red_flags": []
+}
