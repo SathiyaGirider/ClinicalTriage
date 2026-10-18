@@ -13,3 +13,5 @@ frontend/dist/
 *.sqlite
 .env.*
 !.env.example
+tsconfig.tsbuildinfo
+*.tsbuildinfo

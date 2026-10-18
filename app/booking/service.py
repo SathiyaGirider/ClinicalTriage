@@ -305,6 +305,7 @@ def appointment_view(db: Session, appt: Appointment) -> dict:
                      "er_phone": h.er_phone, "walk_in_window_text": h.walk_in_window_text} if h else None,
         "session": {"id": s.id, "label": s.label, "window_start": s.window_start, "window_end": s.window_end} if s else None,
         "state": patient_state(appt, e),
+        "is_today": appt.date == timeutil.today(),
         "flagged_expected_today": appt.type == "walk_in" and appt.status == "expected_today",
         "intake_id": appt.intake_id,
     }
