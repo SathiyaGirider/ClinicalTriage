@@ -79,8 +79,12 @@ def _triage(intake: IntakeResult, vitals: VitalsInput | None, client: LLMClient 
         return _enforce_invariants(_rule_decision(intake, rr, notes, dept))
 
     decided_by = "llm"
+    from app.common.llm import get_llm_client
+    active = client or get_llm_client()
+    if getattr(active, "name", "") == "demo_standin":
+        notes.append("demo_llm_standin")
     try:
-        priority, confidence, rationale = classify_with_llm(intake, client=client, tags=tags)
+        priority, confidence, rationale = classify_with_llm(intake, client=active, tags=tags)
         rationale, filtered = filter_text(rationale)
         if filtered:
             notes.append("output_filtered")

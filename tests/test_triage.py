@@ -170,3 +170,14 @@ def test_summary_rejects_invented_history():
     s = generate_summary(i, d, client=FakeLLMClient(invented))
     assert s.summary_source == "template" and s.relevant_history == ["hypertension"]
     assert s.priority_rationale == d.priority_rationale
+
+
+def test_demo_standin_is_labelled_and_rules_still_win():
+    from app.common.llm import DemoStandInClient
+    c = DemoStandInClient()
+    d = triage(intake("runny nose and sneezing since yesterday", symptom_tags=["cold_symptoms"]), client=c)
+    assert d.priority == "routine" and "demo_llm_standin" in d.audit_notes
+    d = triage(intake("chest pain and breathless", symptom_tags=["cold_symptoms"]), client=c)
+    assert d.priority == "emergency" and d.decided_by == "rule"
+    d = triage(intake("stomach pain since yesterday"), client=c)
+    assert d.priority == "same-day"

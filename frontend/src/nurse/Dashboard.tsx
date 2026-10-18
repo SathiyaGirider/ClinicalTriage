@@ -159,7 +159,8 @@ export default function Dashboard() {
                       ))}
                     </>
                   )}
-                  <h3>Booked, not arrived ({b.still_to_come} still to come)</h3>
+                  <details open={b.booked_not_arrived.some((e) => e.presence === "self_reported_arrived")}>
+                  <summary><h3 style={{ display: "inline" }}>Booked, not arrived ({b.still_to_come} still to come)</h3></summary>
                   {b.booked_not_arrived.map((e) => (
                     <div key={e.id} className="entry">
                       <EntryHeader e={e} />
@@ -170,6 +171,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+                  </details>
                 </div>
               </div>
             </section>

@@ -37,3 +37,10 @@ Each entry: decision, and why. Added as the build progressed.
 24. Intake sessions are stored in SQLite (JSON state) so a server restart does not lose answers.
 25. Without `ANTHROPIC_API_KEY` or `LLM_MODEL` the LLM client is "unavailable": adaptive questions fall back to the fixed bank, extraction is deterministic, triage fails safe (same-day + escalation + flag) for cases no rule decides. The CLI and tests use a fake client with canned replies from `mock-data/expected.json`.
 26. Uvicorn access logs have query strings stripped (doctor patient search uses `?query=`).
+27. **Input confidence with the fallback extractor**: low only if our vocabulary recognised none of the patient's words; otherwise capped at medium. (Always-low would make every key-less intake "same-day".)
+28. **`DEMO_LLM_STANDIN=true`** (off by default, only when no key/model is set) swaps the urgency LLM for a fixed keyword heuristic so the routine outcome can be demonstrated. Decisions carry `demo_llm_standin`. Rules still run first.
+29. Frontend staff areas live under `/staff/nurse` and `/staff/doctor` because `/doctor/*` is an API prefix (dev proxy and SPA fallback would collide).
+30. Person A's kiosk routes (`/intake`, `/intake/kiosk/*`, `/intake/records`) are unauthenticated and expose transcripts, so they are only mounted with `ENABLE_LEGACY_KIOSK=true`.
+31. Seeding after today's afternoon session has ended extends today's afternoon window to 23:30 so the demo always has sessions today.
+32. The doctor can "Call in" any present patient (marks with doctor); this never changes queue positions.
+33. Nurse "quick safety screen" chips are added to the check-in note as plain words, so they go through the same rules as an addendum.

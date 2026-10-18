@@ -104,6 +104,35 @@ class FakeLLMClient:
         return r
 
 
+class DemoStandInClient:
+    """
+    OPT-IN demo stand-in used ONLY when no real model is configured and
+    DEMO_LLM_STANDIN=true. It is a fixed keyword heuristic, not AI: it answers
+    "routine" only when every recognised symptom tag is in a short mild list,
+    otherwise "same-day". Decisions it makes carry the audit note
+    "demo_llm_standin". Rules still run first and are still authoritative.
+    """
+
+    name = "demo_standin"
+    MILD = {"cold_symptoms", "cough", "sore_throat", "rash", "itching", "skin_problem", "joint_pain", "back_pain", "ear_problem",
+            "headache", "fatigue", "body_pain", "nose_problem", "eye_problem"}
+
+    def complete(self, system: str, user: str, max_tokens: int = 300, purpose: str = "") -> str:
+        if purpose != "triage":
+            raise LLMUnavailable("demo stand-in only rates urgency")
+        import json
+        import re
+        m = re.search(r"\{.*\}", user, re.DOTALL)
+        data = json.loads(m.group(0)) if m else {}
+        tags = [t for t in data.get("symptom_tags", []) if t != "other"]
+        mild = bool(tags) and all(t in self.MILD for t in tags)
+        if mild:
+            return json.dumps({"priority": "routine", "confidence": "medium",
+                               "rationale": "Demo stand-in (no AI model configured): only mild, common symptoms were reported."})
+        return json.dumps({"priority": "same-day", "confidence": "medium",
+                           "rationale": "Demo stand-in (no AI model configured): symptoms not on the mild list, so a nurse should review today."})
+
+
 _client: LLMClient | None = None
 
 
@@ -119,6 +148,8 @@ def get_llm_client() -> LLMClient:
             except Exception as exc:  # SDK missing or bad config: fail safe
                 logger.warning("anthropic client init failed: %s", type(exc).__name__)
                 _client = UnavailableClient()
+        elif os.getenv("DEMO_LLM_STANDIN", "false").lower() == "true":
+            _client = DemoStandInClient()
         else:
             _client = UnavailableClient()
     return _client

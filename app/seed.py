@@ -85,7 +85,7 @@ def _sessions_for(db: Session, doc: Doctor, day: date, rng: random.Random, fille
         db.add(s)
         db.flush()
         # Some tokens already issued so numbers look realistic (always leaves open + reserved tokens).
-        issued = rng.randint(1, max(1, (max_tokens - s.reserved_urgent) // 3))
+        issued = rng.randint(1, min(6, max(1, (max_tokens - s.reserved_urgent) // 3)))
         if day == timeutil.today() and not issue_today:
             issued = 0
         for _ in range(issued):
