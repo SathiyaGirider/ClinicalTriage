@@ -7,4 +7,9 @@ venv/
 .venv/
 env/
 
-.vscode/
+.vscode/node_modules/
+frontend/dist/
+.pytest_cache/
+*.sqlite
+.env.*
+!.env.example

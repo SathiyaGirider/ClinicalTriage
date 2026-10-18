@@ -123,7 +123,7 @@ def is_repeat_request(text: str) -> bool:
     # Standalone single words / short queries indicating repeat intent
     standalone_repeat_words = {
         # English
-        "repeat", "again", "pardon", "pardon me", "sorry", "what", "excuse me",
+        "repeat", "again", "pardon", "pardon me", "sorry", "what", "excuse me", "sorry what",
         # Tamil
         "மறுபடியும்", "திருப்பியும்", "திரும்பவும்", "திரும்ப", "மீண்டும்",
         "கேட்கவில்லை", "கேக்கல", "புரியல", "புரியவில்லை", "விளங்கல", "என்ன",
@@ -152,6 +152,7 @@ def is_repeat_request(text: str) -> bool:
         r"திருப்பியு?ம்\s*சொல்லு(?:ங்க|ங்கோ)?",
         r"மறுபடியு?ம்\s*சொல்லு(?:ங்க|ங்கோ)?",
         r"திரும்ப(?:வு)?ம்\s*சொல்லு(?:ங்க|ங்கோ)?",
+        r"திரும்ப\s*சொல்லு(?:ங்க|ங்கோ)?",
         r"மீண்டும்\s*சொல்லு(?:ங்கள்|ங்க|ங்கோ)?",
         r"(?:இன்னொரு|ஒரு)\s*(?:முறை|தடவை|தடவ|வாட்டி)\s*சொல்லு(?:ங்க|ங்கோ)?",
         r"என்ன\s*சொன்னீ?ங்க",
