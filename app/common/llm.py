@@ -1,8 +1,8 @@
 """
 Small LLM client wrapper.
 
-- AnthropicClient: Anthropic SDK, model and key from env (LLM_MODEL,
-  ANTHROPIC_API_KEY), a hard timeout, and retries OFF.
+- GroqClient: Groq's OpenAI-compatible chat completions API over HTTPS, model and key from env
+  (LLM_MODEL, GROQ_API_KEY), a hard timeout, retries OFF.
 - UnavailableClient: used when no key/model is configured. Every call raises
   LLMUnavailable so callers take their fail-safe path.
 - FakeLLMClient: for tests and the CLI. Returns canned text, a callable's
@@ -45,35 +45,44 @@ class UnavailableClient:
     name = "unavailable"
 
     def complete(self, system: str, user: str, max_tokens: int = 300, purpose: str = "") -> str:
-        raise LLMUnavailable("LLM not configured (ANTHROPIC_API_KEY / LLM_MODEL missing)")
+        raise LLMUnavailable("LLM not configured (GROQ_API_KEY / LLM_MODEL missing)")
 
 
-class AnthropicClient:
-    name = "anthropic"
+class GroqClient:
+    name = "groq"
 
-    def __init__(self, api_key: str, model: str, timeout: float):
-        import anthropic
+    def __init__(self, api_key: str, model: str, timeout: float, url: str):
+        import requests
 
-        self._anthropic = anthropic
-        self._client = anthropic.Anthropic(api_key=api_key, timeout=timeout, max_retries=0)
+        self._requests = requests
+        self._key = api_key
         self._model = model
+        self._timeout = timeout
+        self._url = url
 
     def complete(self, system: str, user: str, max_tokens: int = 300, purpose: str = "") -> str:
+        payload = {
+            "model": self._model,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            "max_tokens": max_tokens,
+            "temperature": 0.2,
+        }
+        headers = {"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"}
         try:
-            resp = self._client.messages.create(
-                model=self._model,
-                max_tokens=max_tokens,
-                system=system,
-                messages=[{"role": "user", "content": user}],
-            )
-        except self._anthropic.APITimeoutError as exc:
+            resp = self._requests.post(self._url, json=payload, headers=headers, timeout=self._timeout)
+        except self._requests.exceptions.Timeout as exc:
             raise LLMTimeout("LLM timed out") from exc
-        except self._anthropic.APIError as exc:
-            # Log the class only: the error body could echo the prompt.
+        except self._requests.exceptions.RequestException as exc:
             logger.warning("llm call failed purpose=%s error=%s", purpose, type(exc).__name__)
             raise LLMError(type(exc).__name__) from exc
-        parts = [getattr(b, "text", "") for b in resp.content if getattr(b, "type", "") == "text"]
-        return "".join(parts)
+        if resp.status_code != 200:
+            # Status code only: the body could echo the prompt.
+            logger.warning("llm call failed purpose=%s status=%s", purpose, resp.status_code)
+            raise LLMError(f"http_{resp.status_code}")
+        try:
+            return resp.json()["choices"][0]["message"]["content"] or ""
+        except (ValueError, KeyError, IndexError, TypeError) as exc:
+            raise LLMError("malformed_response") from exc
 
 
 class FakeLLMClient:
@@ -144,9 +153,9 @@ def get_llm_client() -> LLMClient:
             _client = FakeLLMClient('{"priority": "same-day", "confidence": "medium", "rationale": "MOCKED response - real LLM not called."}')
         elif settings.llm_configured:
             try:
-                _client = AnthropicClient(settings.anthropic_api_key, settings.llm_model, settings.llm_timeout_seconds)
+                _client = GroqClient(settings.groq_api_key, settings.llm_model, settings.llm_timeout_seconds, settings.groq_api_url)
             except Exception as exc:  # SDK missing or bad config: fail safe
-                logger.warning("anthropic client init failed: %s", type(exc).__name__)
+                logger.warning("groq client init failed: %s", type(exc).__name__)
                 _client = UnavailableClient()
         elif os.getenv("DEMO_LLM_STANDIN", "false").lower() == "true":
             _client = DemoStandInClient()

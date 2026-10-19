@@ -265,7 +265,7 @@ def call_llm_extractor(raw_transcript: str, language: Literal["en", "ta"]) -> Op
     Attempt extraction via LLM if API key is present.
     Enforces strict structured JSON schema prompting and prompt-injection safety walls.
     """
-    # Provider switched from Gemini to the shared Anthropic wrapper
+    # Provider switched from Gemini to the shared LLM wrapper (Groq)
     # (app/common/llm.py: model + key from env, timeout, no retries). Without a
     # key the client raises and we fall back to deterministic extraction.
     from app.common.llm import LLMUnavailable, get_llm_client

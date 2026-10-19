@@ -1,6 +1,6 @@
 # Demo script (≈15 min)
 
-Setup: see README. Use `SEED_DEMO=true`, `SEED_PASSWORD=demo-pass-123`, and either a real `ANTHROPIC_API_KEY` + `LLM_MODEL` or `DEMO_LLM_STANDIN=true` (otherwise every non-rule case fails safe to "visit today", so step 2 cannot show "routine"). Open the patient app on a phone-sized window, nurse and doctor on desktop windows. Say up front: *synthetic data, prototype, not a medical device.*
+Setup: see README. Use `SEED_DEMO=true`, `SEED_PASSWORD=demo-pass-123`, and either a real `GROQ_API_KEY` + `LLM_MODEL` or `DEMO_LLM_STANDIN=true` (otherwise every non-rule case fails safe to "visit today", so step 2 cannot show "routine"). Open the patient app on a phone-sized window, nurse and doctor on desktop windows. Say up front: *synthetic data, prototype, not a medical device.*
 
 1. **Register** a new patient (email + password, age). Show: no phone/ID asked. Switch language to **தமிழ்** at the top; switch back to English for the next steps (or keep Tamil).
 2. **Flow 1 routine:** Book an appointment → LifeLine Adyar Hospital → General Medicine → Dr. Meena Raghavan → a session → "mild cold and runny nose since yesterday" → None of these → 1–3 days → None → answer → confirm → **token + approximate time range**, directions, calendar.

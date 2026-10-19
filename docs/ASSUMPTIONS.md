@@ -35,7 +35,7 @@ Each entry: decision, and why. Added as the build progressed.
 ## Data and infra
 23. Walk-in patients registered by a nurse get a placeholder account (`walkin-<id>@walkin.invalid`) with an unusable password. No phone/ID collected.
 24. Intake sessions are stored in SQLite (JSON state) so a server restart does not lose answers.
-25. Without `ANTHROPIC_API_KEY` or `LLM_MODEL` the LLM client is "unavailable": adaptive questions fall back to the fixed bank, extraction is deterministic, triage fails safe (same-day + escalation + flag) for cases no rule decides. The CLI and tests use a fake client with canned replies from `mock-data/expected.json`.
+25. Without `GROQ_API_KEY` or `LLM_MODEL` the LLM client is "unavailable": adaptive questions fall back to the fixed bank, extraction is deterministic, triage fails safe (same-day + escalation + flag) for cases no rule decides. The CLI and tests use a fake client with canned replies from `mock-data/expected.json`.
 26. Uvicorn access logs have query strings stripped (doctor patient search uses `?query=`).
 27. **Input confidence with the fallback extractor**: low only if our vocabulary recognised none of the patient's words; otherwise capped at medium. (Always-low would make every key-less intake "same-day".)
 28. **`DEMO_LLM_STANDIN=true`** (off by default, only when no key/model is set) swaps the urgency LLM for a fixed keyword heuristic so the routine outcome can be demonstrated. Decisions carry `demo_llm_standin`. Rules still run first.

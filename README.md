@@ -15,7 +15,7 @@ Needs Python 3.11+ and Node 18+.
 ```bash
 # backend
 pip install -r requirements.txt
-cp .env.example .env              # set SEED_PASSWORD; optionally ANTHROPIC_API_KEY + LLM_MODEL, or DEMO_LLM_STANDIN=true
+cp .env.example .env              # set SEED_PASSWORD; optionally GROQ_API_KEY + LLM_MODEL, or DEMO_LLM_STANDIN=true
 SEED_DEMO=true python -m app.seed  # synthetic hospitals, doctors, sessions, accounts (use --reset to start over)
 uvicorn app.main:app --reload --port 8000      # API docs: http://localhost:8000/docs
 

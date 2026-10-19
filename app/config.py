@@ -31,7 +31,8 @@ class Settings:
     frontend_origin: str = field(default_factory=lambda: os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"))
 
     # LLM (no default model on purpose: the model name must come from env)
-    anthropic_api_key: str | None = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY") or None)
+    groq_api_key: str | None = field(default_factory=lambda: os.getenv("GROQ_API_KEY") or None)
+    groq_api_url: str = field(default_factory=lambda: os.getenv("GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions"))
     llm_model: str | None = field(default_factory=lambda: os.getenv("LLM_MODEL") or None)
     llm_timeout_seconds: float = field(default_factory=lambda: float(os.getenv("LLM_TIMEOUT_SECONDS", "8")))
 
@@ -59,7 +60,7 @@ class Settings:
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.anthropic_api_key and self.llm_model)
+        return bool(self.groq_api_key and self.llm_model)
 
 
 settings = Settings()
