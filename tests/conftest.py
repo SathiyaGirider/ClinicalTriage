@@ -10,7 +10,7 @@ from datetime import datetime
 
 os.environ.setdefault("SEED_PASSWORD", "test-password-123")
 os.environ["SEED_DEMO"] = "false"
-os.environ.pop("ANTHROPIC_API_KEY", None)
+os.environ.pop("GROQ_API_KEY", None)
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

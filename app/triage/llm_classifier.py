@@ -2,7 +2,7 @@
 LLM-based urgency estimate for cases where NO hardcoded rule fired.
 
 Originally a Groq HTTP call (Person B); now goes through the shared client
-wrapper in app/common/llm.py (Anthropic SDK, model + key from env, timeout,
+wrapper in app/common/llm.py (Groq OpenAI-compatible API, model + key from env, timeout,
 no retries, fake client in tests). The public function keeps its
 (priority, confidence, reason) return shape.
 

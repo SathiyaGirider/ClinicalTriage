@@ -40,3 +40,5 @@ New modules (nothing to reuse): `app/config.py`, `app/db.py`, `app/models.py`, `
 
 ## Nothing deleted
 No teammate file was deleted. The only behavioural replacements are the two LLM provider calls (Groq, Gemini) which move to the Anthropic wrapper as the spec requires.
+
+Later change: LLM provider switched from Anthropic to Groq (app/common/llm.py GroqClient).
