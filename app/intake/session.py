@@ -138,6 +138,8 @@ def _adaptive_question(state: dict) -> dict:
     n = sum(1 for q in state["asked"] if q["source"] in ("llm", "bank"))
     key = f"adaptive_{n + 1}"
     try:
+        if getattr(client, "name", "") == "fake":
+            raise LLMError("fake client must not generate patient-facing questions")
         if detect_injection(_all_text(state)).suspected:
             raise LLMError("injection suspected: use fixed bank")
         text = client.complete(QUESTION_SYSTEM, wrap_data(payload), max_tokens=60, purpose="question").strip().strip('"')
