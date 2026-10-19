@@ -1,0 +1,16 @@
+{
+  "_note": "Expected triage outcome per scenario. fake_llm is the canned reply the fake LLM client returns in tests and in `python -m app.triage.cli` (no API key needed). Rule-path scenarios never call the LLM.",
+  "scenario-01.json": {"priority": "emergency", "decided_by": "rule", "red_flags_include": ["chest_pain_with_breathlessness"], "fake_llm": null},
+  "scenario-02.json": {"priority": "emergency", "decided_by": "rule", "red_flags_include": ["stroke_signs"], "fake_llm": null},
+  "scenario-03.json": {"priority": "same-day", "decided_by": "llm", "red_flags_include": [],
+    "fake_llm": {"priority": "same-day", "confidence": "high", "rationale": "A deep cut with controlled bleeding should be checked by a clinician today."}},
+  "scenario-04.json": {"priority": "routine", "decided_by": "llm", "red_flags_include": [],
+    "fake_llm": {"priority": "routine", "confidence": "high", "rationale": "Mild, short-lived symptoms with no warning signs; can wait for the booked session."}},
+  "scenario-05.json": {"priority": "same-day", "decided_by": "llm", "red_flags_include": [],
+    "fake_llm": {"priority": "routine", "confidence": "low", "rationale": "Intermittent one-sided pain for two days; the picture is unclear."}},
+  "scenario-06.json": {"priority": "same-day", "decided_by": "llm", "red_flags_include": [],
+    "fake_llm": {"priority": "same-day", "confidence": "medium", "rationale": "High fever for three days with poor intake of food and water should be seen today."}},
+  "scenario-07.json": {"priority": "emergency", "decided_by": "rule", "red_flags_include": ["respiratory_distress"], "fake_llm": null,
+    "audit_notes_include": ["injection_suspected"]},
+  "scenario-08.json": {"priority": "emergency", "decided_by": "rule", "red_flags_include": ["pediatric_seizure"], "fake_llm": null}
+}

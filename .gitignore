@@ -8,3 +8,10 @@ venv/
 env/
 
 .vscode/
+node_modules/
+frontend/dist/
+.pytest_cache/
+*.sqlite
+.env.*
+!.env.example
+*.tsbuildinfo

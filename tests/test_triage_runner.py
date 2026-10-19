@@ -1,4 +1,4 @@
-﻿"""
+"""
 test_triage_runner.py
 =====================
 Validates the triage pipeline (rules + LLM) against every scenario*.json
@@ -15,6 +15,9 @@ Exit code:
     0  -- all scenarios passed, no errors
     1  -- one or more strict failures or errors occurred
 """
+
+# Script, not a pytest module (run: python tests/test_triage_runner.py).
+__test__ = False
 
 import json
 import os

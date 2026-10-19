@@ -1,0 +1,4193 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "LifeLine API (prototype)",
+  "description": "Demo with synthetic data. Do not enter real health information. AI assists the care team. It does not diagnose or prescribe. A nurse or doctor decides. Course-project prototype; not clinically validated and not a medical product.",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/auth/register": {
+   "post": {
+    "tags": [
+     "Auth"
+    ],
+    "summary": "Register",
+    "operationId": "register_auth_register_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RegisterRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/login": {
+   "post": {
+    "tags": [
+     "Auth"
+    ],
+    "summary": "Login",
+    "operationId": "login_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TokenResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/me": {
+   "get": {
+    "tags": [
+     "Auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/catalog/hospitals": {
+   "get": {
+    "tags": [
+     "Catalog"
+    ],
+    "summary": "Hospitals",
+    "operationId": "hospitals_catalog_hospitals_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "lat",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 90,
+         "minimum": -90
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Lat"
+      }
+     },
+     {
+      "name": "lon",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 180,
+         "minimum": -180
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Lon"
+      }
+     },
+     {
+      "name": "area",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "maxLength": 80
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Area"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalog/specialties": {
+   "get": {
+    "tags": [
+     "Catalog"
+    ],
+    "summary": "Specialties",
+    "operationId": "specialties_catalog_specialties_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/catalog/doctors": {
+   "get": {
+    "tags": [
+     "Catalog"
+    ],
+    "summary": "Doctors",
+    "operationId": "doctors_catalog_doctors_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "specialty",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "maxLength": 40
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Specialty"
+      }
+     },
+     {
+      "name": "hospital_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Hospital Id"
+      }
+     },
+     {
+      "name": "lat",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 90,
+         "minimum": -90
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Lat"
+      }
+     },
+     {
+      "name": "lon",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 180,
+         "minimum": -180
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Lon"
+      }
+     },
+     {
+      "name": "area",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "maxLength": 80
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Area"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalog/doctors/{doctor_id}/sessions": {
+   "get": {
+    "tags": [
+     "Catalog"
+    ],
+    "summary": "Doctor Sessions",
+    "operationId": "doctor_sessions_catalog_doctors__doctor_id__sessions_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Doctor Id"
+      }
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalog/department": {
+   "get": {
+    "tags": [
+     "Catalog"
+    ],
+    "summary": "Department",
+    "operationId": "department_catalog_department_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "tags",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "maxLength": 500,
+       "default": "",
+       "title": "Tags"
+      }
+     },
+     {
+      "name": "age",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer",
+         "maximum": 125,
+         "minimum": 0
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Age"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/hold": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Hold",
+    "operationId": "hold_booking_hold_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/HoldRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/booking/{hold_id}/release": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Release",
+    "operationId": "release_booking__hold_id__release_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "hold_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Hold Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/finalize": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Finalize",
+    "description": "Issues the token. The outcome comes from the server-side triage decision for intake_id.",
+    "operationId": "finalize_booking_finalize_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/FinalizeRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/booking/mine": {
+   "get": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Mine",
+    "operationId": "mine_booking_mine_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/booking/today-sessions": {
+   "get": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Today Sessions",
+    "operationId": "today_sessions_booking_today_sessions_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Doctor Id"
+      }
+     },
+     {
+      "name": "specialty",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "maxLength": 40
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Specialty"
+      }
+     },
+     {
+      "name": "hospital_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Hospital Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/walk-in-intent": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Walk In Intent",
+    "operationId": "walk_in_intent_booking_walk_in_intent_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WalkInIntentRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/booking/{appointment_id}/status": {
+   "get": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Status",
+    "operationId": "status_booking__appointment_id__status_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "appointment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/{appointment_id}/cancel": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Cancel",
+    "operationId": "cancel_booking__appointment_id__cancel_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "appointment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/{appointment_id}/reschedule": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Reschedule",
+    "operationId": "reschedule_booking__appointment_id__reschedule_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "appointment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RescheduleRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/{appointment_id}/arrived": {
+   "post": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Arrived",
+    "operationId": "arrived_booking__appointment_id__arrived_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "appointment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ArrivedRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/booking/{appointment_id}/ics": {
+   "get": {
+    "tags": [
+     "Booking"
+    ],
+    "summary": "Ics",
+    "operationId": "ics_booking__appointment_id__ics_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "appointment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/intake/session/start": {
+   "post": {
+    "tags": [
+     "Intake session"
+    ],
+    "summary": "Start",
+    "operationId": "start_intake_session_start_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/StartRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/intake/session/{session_id}/answer": {
+   "post": {
+    "tags": [
+     "Intake session"
+    ],
+    "summary": "Answer",
+    "operationId": "answer_intake_session__session_id__answer_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Session Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AnswerRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/intake/session/{session_id}": {
+   "get": {
+    "tags": [
+     "Intake session"
+    ],
+    "summary": "Get State",
+    "operationId": "get_state_intake_session__session_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Session Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/intake/session/{session_id}/result": {
+   "get": {
+    "tags": [
+     "Intake session"
+    ],
+    "summary": "Result",
+    "description": "Confirm-screen preview: what we understood, in the patient's own words. No triage output.",
+    "operationId": "result_intake_session__session_id__result_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "session_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Session Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/pipeline/submit": {
+   "post": {
+    "tags": [
+     "Pipeline"
+    ],
+    "summary": "Submit Endpoint",
+    "operationId": "submit_endpoint_pipeline_submit_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SubmitRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/triage": {
+   "post": {
+    "tags": [
+     "Triage"
+    ],
+    "summary": "Triage Endpoint",
+    "operationId": "triage_endpoint_triage_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/IntakeResult"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriageDecision"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/triage/classify": {
+   "post": {
+    "tags": [
+     "Triage"
+    ],
+    "summary": "Classify",
+    "operationId": "classify_triage_classify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/IntakeResult"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriageDecision"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/triage/reclassify": {
+   "post": {
+    "tags": [
+     "Triage"
+    ],
+    "summary": "Reclassify Endpoint",
+    "operationId": "reclassify_endpoint_triage_reclassify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReclassifyRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/triage/test-scenario": {
+   "post": {
+    "tags": [
+     "Triage"
+    ],
+    "summary": "Test Scenario",
+    "operationId": "test_scenario_triage_test_scenario_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ScenarioRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Get Queue",
+    "description": "Dashboard data: needs attention, present and waiting, booked not arrived, expected today (flagged), doctors.",
+    "operationId": "get_queue_queue_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Doctor Id"
+      }
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     },
+     {
+      "name": "session",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "morning",
+          "afternoon"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Session"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/search": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Search",
+    "description": "Check-in desk: today's entries in this hospital by token label or name.",
+    "operationId": "search_queue_search_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "query",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 60,
+       "title": "Query"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/entry/{entry_id}": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Entry Detail",
+    "description": "Patient drawer: 5-line summary, answers, vitals. Never diagnosis history or prescriptions.",
+    "operationId": "entry_detail_queue_entry__entry_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "entry_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Entry Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/{entry_id}/check-in": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Check In",
+    "operationId": "check_in_queue__entry_id__check_in_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "entry_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Entry Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CheckInRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/{entry_id}/recheck/start": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Recheck Start",
+    "operationId": "recheck_start_queue__entry_id__recheck_start_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "entry_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Entry Id"
+      }
+     },
+     {
+      "name": "change",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "worse",
+        "new_symptom"
+       ],
+       "type": "string",
+       "default": "worse",
+       "title": "Change"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/walk-in": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Walk In",
+    "description": "Register a walk-in (no phone, no ID), issue a W token now, then run assisted intake.",
+    "operationId": "walk_in_queue_walk_in_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WalkInRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/assisted-intake/start": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Assisted Start",
+    "operationId": "assisted_start_queue_assisted_intake_start_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssistedStart"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/{entry_id}/ack": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Ack",
+    "operationId": "ack_queue__entry_id__ack_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "entry_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Entry Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/action": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Action",
+    "operationId": "action_queue_action_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ActionRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/order": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Order",
+    "operationId": "order_queue_order_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OrderRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/flag": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Flag",
+    "operationId": "flag_queue_flag_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/FlagRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/vitals": {
+   "post": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Vitals",
+    "operationId": "vitals_queue_vitals_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/VitalsRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/queue/expected-today": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Expected Today",
+    "operationId": "expected_today_queue_expected_today_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Doctor Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/action-log": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Action Log",
+    "operationId": "action_log_queue_action_log_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/queue/doctors": {
+   "get": {
+    "tags": [
+     "Queue (nurse)"
+    ],
+    "summary": "Doctors",
+    "operationId": "doctors_queue_doctors_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/doctor/today": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Today",
+    "operationId": "today_doctor_today_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/doctor/start/{entry_id}": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Start Consult",
+    "description": "Doctor calls a present patient in (marks 'with doctor'). Does not change anyone's queue position.",
+    "operationId": "start_consult_doctor_start__entry_id__post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "entry_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Entry Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor/patient/{patient_id}": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Patient Workspace",
+    "operationId": "patient_workspace_doctor_patient__patient_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient Id"
+      }
+     },
+     {
+      "name": "appointment_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Appointment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor/override": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Override",
+    "operationId": "override_doctor_override_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OverrideRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/doctor/patients": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Patients",
+    "description": "Search among THIS doctor's own patients (appointment relationship), with encounters this doctor wrote.",
+    "operationId": "patients_doctor_patients_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "query",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "maxLength": 60,
+       "default": "",
+       "title": "Query"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/ehr/consultation": {
+   "post": {
+    "tags": [
+     "EHR"
+    ],
+    "summary": "Consultation",
+    "operationId": "consultation_ehr_consultation_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConsultationRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/ehr/fhir/Patient/{patient_id}": {
+   "get": {
+    "tags": [
+     "EHR"
+    ],
+    "summary": "Fhir Patient",
+    "operationId": "fhir_patient_ehr_fhir_Patient__patient_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/ehr/fhir/Encounter": {
+   "get": {
+    "tags": [
+     "EHR"
+    ],
+    "summary": "Fhir Encounters",
+    "description": "Policy-filtered: own encounters + (with consent) other doctors' Conditions only.",
+    "operationId": "fhir_encounters_ehr_fhir_Encounter_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/ehr/fhir/MedicationRequest": {
+   "get": {
+    "tags": [
+     "EHR"
+    ],
+    "summary": "Fhir Medication Requests",
+    "description": "Only prescriptions from encounters this doctor authored; never other doctors' prescriptions.",
+    "operationId": "fhir_medication_requests_ehr_fhir_MedicationRequest_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/me/records": {
+   "get": {
+    "tags": [
+     "Patient (me)"
+    ],
+    "summary": "Records",
+    "operationId": "records_me_records_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/me/prescriptions": {
+   "get": {
+    "tags": [
+     "Patient (me)"
+    ],
+    "summary": "Prescriptions",
+    "operationId": "prescriptions_me_prescriptions_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/me/consent": {
+   "put": {
+    "tags": [
+     "Patient (me)"
+    ],
+    "summary": "Consent",
+    "operationId": "consent_me_consent_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConsentRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/me/access-log": {
+   "get": {
+    "tags": [
+     "Patient (me)"
+    ],
+    "summary": "Access Log",
+    "operationId": "access_log_me_access_log_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/me/profile": {
+   "put": {
+    "tags": [
+     "Patient (me)"
+    ],
+    "summary": "Profile",
+    "operationId": "profile_me_profile_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ProfileRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/health": {
+   "get": {
+    "tags": [
+     "Meta"
+    ],
+    "summary": "Health",
+    "operationId": "health_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/config/public": {
+   "get": {
+    "tags": [
+     "Meta"
+    ],
+    "summary": "Public Config",
+    "operationId": "public_config_config_public_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ActionRequest": {
+    "properties": {
+     "entry_id": {
+      "type": "integer",
+      "title": "Entry Id"
+     },
+     "action": {
+      "type": "string",
+      "enum": [
+       "acknowledge",
+       "send_to_er",
+       "fast_track",
+       "return_to_queue",
+       "move_up",
+       "move_down",
+       "move_to",
+       "mark_with_doctor",
+       "mark_done",
+       "mark_no_show",
+       "change_priority"
+      ],
+      "title": "Action"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason"
+     },
+     "position": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 500.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Position"
+     },
+     "priority": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "emergency",
+         "same-day",
+         "routine"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Priority"
+     }
+    },
+    "type": "object",
+    "required": [
+     "entry_id",
+     "action"
+    ],
+    "title": "ActionRequest"
+   },
+   "AnswerRequest": {
+    "properties": {
+     "key": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1,
+      "title": "Key"
+     },
+     "answer": {
+      "title": "Answer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "key",
+     "answer"
+    ],
+    "title": "AnswerRequest"
+   },
+   "ArrivedRequest": {
+    "properties": {
+     "change": {
+      "type": "string",
+      "enum": [
+       "none",
+       "better",
+       "worse",
+       "new_symptom"
+      ],
+      "title": "Change"
+     },
+     "text": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "change"
+    ],
+    "title": "ArrivedRequest"
+   },
+   "AssistedStart": {
+    "properties": {
+     "entry_id": {
+      "type": "integer",
+      "title": "Entry Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "entry_id"
+    ],
+    "title": "AssistedStart"
+   },
+   "CheckInRequest": {
+    "properties": {
+     "outcome": {
+      "type": "string",
+      "enum": [
+       "none",
+       "better",
+       "worse",
+       "new_symptom"
+      ],
+      "title": "Outcome"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "outcome"
+    ],
+    "title": "CheckInRequest"
+   },
+   "ConsentRequest": {
+    "properties": {
+     "share_history_consent": {
+      "type": "boolean",
+      "title": "Share History Consent"
+     }
+    },
+    "type": "object",
+    "required": [
+     "share_history_consent"
+    ],
+    "title": "ConsentRequest"
+   },
+   "ConsultationRequest": {
+    "properties": {
+     "appointment_id": {
+      "type": "integer",
+      "title": "Appointment Id"
+     },
+     "diagnosis_text": {
+      "type": "string",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Diagnosis Text"
+     },
+     "diagnosis_code": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 20
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Diagnosis Code"
+     },
+     "clinical_notes": {
+      "type": "string",
+      "maxLength": 5000,
+      "title": "Clinical Notes",
+      "default": ""
+     },
+     "prescription": {
+      "items": {
+       "$ref": "#/components/schemas/PrescriptionItem"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "title": "Prescription"
+     },
+     "follow_up_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Follow Up Date"
+     }
+    },
+    "type": "object",
+    "required": [
+     "appointment_id",
+     "diagnosis_text"
+    ],
+    "title": "ConsultationRequest",
+    "description": "Typed by the doctor only. Nothing in this form is AI-suggested or autofilled."
+   },
+   "FinalizeRequest": {
+    "properties": {
+     "intake_id": {
+      "type": "integer",
+      "title": "Intake Id"
+     },
+     "hold_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hold Id"
+     },
+     "session_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Session Id"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "hold",
+       "same_day"
+      ],
+      "title": "Mode",
+      "default": "hold"
+     }
+    },
+    "type": "object",
+    "required": [
+     "intake_id"
+    ],
+    "title": "FinalizeRequest"
+   },
+   "FlagRequest": {
+    "properties": {
+     "entry_id": {
+      "type": "integer",
+      "title": "Entry Id"
+     },
+     "flagged": {
+      "type": "boolean",
+      "title": "Flagged"
+     },
+     "reason": {
+      "type": "string",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "entry_id",
+     "flagged",
+     "reason"
+    ],
+    "title": "FlagRequest"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "HoldRequest": {
+    "properties": {
+     "session_id": {
+      "type": "integer",
+      "title": "Session Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "session_id"
+    ],
+    "title": "HoldRequest"
+   },
+   "IntakeAddendum": {
+    "properties": {
+     "ts": {
+      "type": "string",
+      "title": "Ts"
+     },
+     "change": {
+      "type": "string",
+      "enum": [
+       "worse",
+       "new_symptom",
+       "better",
+       "none"
+      ],
+      "title": "Change",
+      "default": "worse"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text",
+      "default": ""
+     },
+     "answers": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "type": "object",
+      "title": "Answers"
+     },
+     "symptom_tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Symptom Tags"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "patient",
+       "nurse"
+      ],
+      "title": "Source",
+      "default": "patient"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ts"
+    ],
+    "title": "IntakeAddendum",
+    "description": "Short re-check (check-in \"worse\"/\"new symptom\") merged into an intake."
+   },
+   "IntakeResult": {
+    "properties": {
+     "patient_id": {
+      "type": "string",
+      "title": "Patient Id"
+     },
+     "chief_complaint": {
+      "type": "string",
+      "title": "Chief Complaint"
+     },
+     "duration": {
+      "type": "string",
+      "title": "Duration"
+     },
+     "symptoms": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Symptoms"
+     },
+     "age": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Age"
+     },
+     "known_conditions": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Known Conditions"
+     },
+     "follow_up_answers": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "type": "object",
+      "title": "Follow Up Answers"
+     },
+     "raw_transcript": {
+      "type": "string",
+      "title": "Raw Transcript"
+     },
+     "input_confidence": {
+      "type": "string",
+      "enum": [
+       "high",
+       "medium",
+       "low"
+      ],
+      "title": "Input Confidence"
+     },
+     "symptom_tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Symptom Tags"
+     },
+     "safety_screen": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Safety Screen"
+     },
+     "language": {
+      "type": "string",
+      "enum": [
+       "en",
+       "ta"
+      ],
+      "title": "Language",
+      "default": "en"
+     },
+     "assisted": {
+      "type": "boolean",
+      "title": "Assisted",
+      "default": false
+     },
+     "addenda": {
+      "items": {
+       "$ref": "#/components/schemas/IntakeAddendum"
+      },
+      "type": "array",
+      "title": "Addenda"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "chief_complaint",
+     "duration",
+     "symptoms",
+     "raw_transcript",
+     "input_confidence"
+    ],
+    "title": "IntakeResult"
+   },
+   "LoginRequest": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginRequest"
+   },
+   "MeResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "full_name": {
+      "type": "string",
+      "title": "Full Name"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     },
+     "doctor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Id"
+     },
+     "language": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     },
+     "age": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Age"
+     },
+     "area": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Area"
+     },
+     "share_history_consent": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Share History Consent"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "full_name",
+     "role"
+    ],
+    "title": "MeResponse"
+   },
+   "OrderRequest": {
+    "properties": {
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Date"
+     },
+     "session": {
+      "type": "string",
+      "enum": [
+       "morning",
+       "afternoon"
+      ],
+      "title": "Session"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "token",
+       "nurse"
+      ],
+      "title": "Mode"
+     },
+     "ordered_entry_ids": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ordered Entry Ids"
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id",
+     "session",
+     "mode"
+    ],
+    "title": "OrderRequest"
+   },
+   "OverrideRequest": {
+    "properties": {
+     "appointment_id": {
+      "type": "integer",
+      "title": "Appointment Id"
+     },
+     "priority": {
+      "type": "string",
+      "enum": [
+       "emergency",
+       "same-day",
+       "routine"
+      ],
+      "title": "Priority"
+     },
+     "reason": {
+      "type": "string",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "appointment_id",
+     "priority",
+     "reason"
+    ],
+    "title": "OverrideRequest"
+   },
+   "PrescriptionItem": {
+    "properties": {
+     "drug": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Drug"
+     },
+     "dose": {
+      "type": "string",
+      "maxLength": 60,
+      "title": "Dose",
+      "default": ""
+     },
+     "frequency": {
+      "type": "string",
+      "maxLength": 60,
+      "title": "Frequency",
+      "default": ""
+     },
+     "duration": {
+      "type": "string",
+      "maxLength": 60,
+      "title": "Duration",
+      "default": ""
+     },
+     "instructions": {
+      "type": "string",
+      "maxLength": 300,
+      "title": "Instructions",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "drug"
+    ],
+    "title": "PrescriptionItem"
+   },
+   "ProfileRequest": {
+    "properties": {
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 120,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "age": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 125.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Age"
+     },
+     "dob": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dob"
+     },
+     "language": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "en",
+         "ta"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     },
+     "area": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 80
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Area"
+     },
+     "lat": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 90.0,
+        "minimum": -90.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lat"
+     },
+     "lon": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 180.0,
+        "minimum": -180.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lon"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "ProfileRequest"
+   },
+   "ReclassifyRequest": {
+    "properties": {
+     "intake_id": {
+      "type": "integer",
+      "title": "Intake Id"
+     },
+     "vitals": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VitalsBody"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "addendum_text": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Addendum Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "intake_id"
+    ],
+    "title": "ReclassifyRequest"
+   },
+   "RegisterRequest": {
+    "properties": {
+     "full_name": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 10,
+      "title": "Password"
+     },
+     "age": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 125.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Age"
+     },
+     "dob": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dob"
+     },
+     "language": {
+      "type": "string",
+      "enum": [
+       "en",
+       "ta"
+      ],
+      "title": "Language",
+      "default": "en"
+     },
+     "area": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 80
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Area"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "full_name",
+     "email",
+     "password"
+    ],
+    "title": "RegisterRequest"
+   },
+   "RescheduleRequest": {
+    "properties": {
+     "session_id": {
+      "type": "integer",
+      "title": "Session Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "session_id"
+    ],
+    "title": "RescheduleRequest"
+   },
+   "ScenarioRequest": {
+    "properties": {
+     "scenario": {
+      "type": "string",
+      "pattern": "^scenario-0[1-8]\\.json$",
+      "title": "Scenario"
+     }
+    },
+    "type": "object",
+    "required": [
+     "scenario"
+    ],
+    "title": "ScenarioRequest"
+   },
+   "StartRequest": {
+    "properties": {
+     "mode": {
+      "type": "string",
+      "enum": [
+       "booking",
+       "symptom_first"
+      ],
+      "title": "Mode",
+      "default": "booking"
+     },
+     "language": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "en",
+         "ta"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     }
+    },
+    "type": "object",
+    "title": "StartRequest"
+   },
+   "SubmitRequest": {
+    "properties": {
+     "intake_session_id": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1,
+      "title": "Intake Session Id"
+     },
+     "hold_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hold Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "intake_session_id"
+    ],
+    "title": "SubmitRequest"
+   },
+   "TokenResponse": {
+    "properties": {
+     "access_token": {
+      "type": "string",
+      "title": "Access Token"
+     },
+     "token_type": {
+      "type": "string",
+      "title": "Token Type",
+      "default": "bearer"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "user_id": {
+      "type": "integer",
+      "title": "User Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access_token",
+     "role",
+     "user_id"
+    ],
+    "title": "TokenResponse"
+   },
+   "TriageDecision": {
+    "properties": {
+     "patient_id": {
+      "type": "string",
+      "title": "Patient Id"
+     },
+     "priority": {
+      "type": "string",
+      "enum": [
+       "emergency",
+       "same-day",
+       "routine"
+      ],
+      "title": "Priority"
+     },
+     "red_flags_matched": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Red Flags Matched"
+     },
+     "decided_by": {
+      "type": "string",
+      "enum": [
+       "rule",
+       "llm",
+       "rule+llm",
+       "fallback",
+       "human"
+      ],
+      "title": "Decided By"
+     },
+     "confidence": {
+      "type": "string",
+      "enum": [
+       "high",
+       "medium",
+       "low"
+      ],
+      "title": "Confidence"
+     },
+     "escalation_required": {
+      "type": "boolean",
+      "title": "Escalation Required"
+     },
+     "priority_rationale": {
+      "type": "string",
+      "title": "Priority Rationale"
+     },
+     "timestamp": {
+      "type": "string",
+      "title": "Timestamp"
+     },
+     "flag_for_nurse": {
+      "type": "boolean",
+      "title": "Flag For Nurse",
+      "default": false
+     },
+     "audit_notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Audit Notes"
+     },
+     "suggested_department": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Suggested Department"
+     },
+     "rule_tier": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "emergency",
+         "urgent"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rule Tier"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "priority",
+     "decided_by",
+     "confidence",
+     "escalation_required",
+     "priority_rationale",
+     "timestamp"
+    ],
+    "title": "TriageDecision"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "VitalsBody": {
+    "properties": {
+     "bp_sys": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 300.0,
+        "minimum": 40.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bp Sys"
+     },
+     "bp_dia": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 200.0,
+        "minimum": 20.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bp Dia"
+     },
+     "temp_c": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 45.0,
+        "minimum": 30.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Temp C"
+     },
+     "spo2": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 100.0,
+        "minimum": 40.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Spo2"
+     },
+     "pulse": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 250.0,
+        "minimum": 20.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pulse"
+     }
+    },
+    "type": "object",
+    "title": "VitalsBody"
+   },
+   "VitalsRequest": {
+    "properties": {
+     "bp_sys": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 300.0,
+        "minimum": 40.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bp Sys"
+     },
+     "bp_dia": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 200.0,
+        "minimum": 20.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bp Dia"
+     },
+     "temp_c": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 45.0,
+        "minimum": 30.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Temp C"
+     },
+     "spo2": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 100.0,
+        "minimum": 40.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Spo2"
+     },
+     "pulse": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 250.0,
+        "minimum": 20.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pulse"
+     },
+     "entry_id": {
+      "type": "integer",
+      "title": "Entry Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "entry_id"
+    ],
+    "title": "VitalsRequest"
+   },
+   "WalkInIntentRequest": {
+    "properties": {
+     "intake_id": {
+      "type": "integer",
+      "title": "Intake Id"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "doctor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "intake_id",
+     "hospital_id"
+    ],
+    "title": "WalkInIntentRequest"
+   },
+   "WalkInRequest": {
+    "properties": {
+     "full_name": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Full Name"
+     },
+     "age": {
+      "type": "integer",
+      "maximum": 125.0,
+      "minimum": 0.0,
+      "title": "Age"
+     },
+     "language": {
+      "type": "string",
+      "enum": [
+       "en",
+       "ta"
+      ],
+      "title": "Language",
+      "default": "en"
+     },
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "full_name",
+     "age",
+     "doctor_id"
+    ],
+    "title": "WalkInRequest"
+   }
+  },
+  "securitySchemes": {
+   "HTTPBearer": {
+    "type": "http",
+    "scheme": "bearer"
+   }
+  }
+ }
+}

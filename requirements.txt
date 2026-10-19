@@ -4,7 +4,7 @@ anyio==4.15.1
 certifi==2026.7.22
 charset-normalizer==3.5.1
 click==8.5.0
-fastapi==0.141.1
+fastapi==0.143.5
 h11==0.16.0
 idna==3.20
 pydantic==2.13.5
@@ -16,4 +16,14 @@ typing-inspection==0.4.4
 typing_extensions==4.16.0
 urllib3==2.8.0
 uvicorn==0.53.0
+# LifeLine additions
+sqlmodel==0.0.48
+SQLAlchemy==2.1.5
+anthropic==1.15.0
+argon2-cffi==25.1.0
+PyJWT==2.14.0
+email-validator==2.3.0
+httpx==0.28.1
+pytest==9.1.1
+# Kept from Person A's original intake module (no longer imported; provider moved to Anthropic)
 google-genai>=1.0.0

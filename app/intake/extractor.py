@@ -265,14 +265,16 @@ def call_llm_extractor(raw_transcript: str, language: Literal["en", "ta"]) -> Op
     Attempt extraction via LLM if API key is present.
     Enforces strict structured JSON schema prompting and prompt-injection safety walls.
     """
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
+    # Provider switched from Gemini to the shared Anthropic wrapper
+    # (app/common/llm.py: model + key from env, timeout, no retries). Without a
+    # key the client raises and we fall back to deterministic extraction.
+    from app.common.llm import LLMUnavailable, get_llm_client
+
+    client = get_llm_client()
+    if client.name in ("unavailable",):
         return None
 
     try:
-        from google import genai
-        client = genai.Client(api_key=api_key)
-
         system_instruction = (
             "You are an expert clinical intake parser for an emergency and urgent care triage system. "
             "Your task is to extract clinical fields from raw patient speech transcripts into JSON format.\n"
@@ -293,27 +295,14 @@ def call_llm_extractor(raw_transcript: str, language: Literal["en", "ta"]) -> Op
         )
 
         prompt = (
-            f"<patient_transcript>\n{raw_transcript}\n</patient_transcript>\n\n"
+            f"<patient_transcript>\n{raw_transcript[:3000]}\n</patient_transcript>\n\n"
             "Extract the JSON structure according to the specification:"
         )
 
-        genai_config = {"system_instruction": system_instruction, "response_mime_type": "application/json"}
         try:
-            from google.genai import types
-            genai_config = types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json"
-            )
-        except Exception:
-            pass
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=genai_config
-        )
-
-        text_out = response.text if hasattr(response, "text") else str(response)
+            text_out = client.complete(system_instruction, prompt, max_tokens=500, purpose="extract")
+        except LLMUnavailable:
+            return None
         cleaned_out = text_out.strip()
         if "```json" in cleaned_out:
             cleaned_out = cleaned_out.split("```json")[1].split("```")[0].strip()
@@ -324,7 +313,7 @@ def call_llm_extractor(raw_transcript: str, language: Literal["en", "ta"]) -> Op
         if isinstance(parsed, dict) and "chief_complaint" in parsed and "symptoms" in parsed:
             return parsed
     except Exception as e:
-        logger.warning(f"LLM extraction call failed or unconfigured; falling back to deterministic extraction: {e}")
+        logger.warning("LLM extraction failed (%s); using deterministic extraction", type(e).__name__)
 
     return None
 
