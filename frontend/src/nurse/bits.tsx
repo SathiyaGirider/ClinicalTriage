@@ -36,7 +36,3 @@ export function EntryHeader({ e }: { e: QEntry }) {
   );
 }
 
-export function promptReason(what: string): string | null {
-  const r = window.prompt(`Reason to ${what} (required):`);
-  return r && r.trim() ? r.trim() : null;
-}

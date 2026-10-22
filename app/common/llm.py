@@ -45,6 +45,7 @@ class UnavailableClient:
     name = "unavailable"
 
     def complete(self, system: str, user: str, max_tokens: int = 300, purpose: str = "") -> str:
+        logger.warning("LLM call attempted (%s) but LLM is unavailable: GROQ_API_KEY or LLM_MODEL missing. Escalating or using safety fallback.", purpose)
         raise LLMUnavailable("LLM not configured (GROQ_API_KEY / LLM_MODEL missing)")
 
 
@@ -76,8 +77,7 @@ class GroqClient:
             logger.warning("llm call failed purpose=%s error=%s", purpose, type(exc).__name__)
             raise LLMError(type(exc).__name__) from exc
         if resp.status_code != 200:
-            # Status code only: the body could echo the prompt.
-            logger.warning("llm call failed purpose=%s status=%s", purpose, resp.status_code)
+            logger.error("LLM API call failed purpose=%s status=%s model=%s (check GROQ_API_KEY and LLM_MODEL)", purpose, resp.status_code, self._model)
             raise LLMError(f"http_{resp.status_code}")
         try:
             return resp.json()["choices"][0]["message"]["content"] or ""

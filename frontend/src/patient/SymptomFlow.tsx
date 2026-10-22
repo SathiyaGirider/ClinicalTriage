@@ -72,10 +72,14 @@ export default function SymptomFlow() {
             <div className="muted">{t("sf.usually_seen")}</div>
             <strong style={{ fontSize: "1.3rem" }}>{advice.suggested_department}</strong>
           </div>
-          {advice.outcome === "staff_will_check_on_you" && <p className="notice">⚠️ {t("out.concern_title")}. {t("out.tell_desk")}</p>}
+          {advice.outcome === "staff_will_check_on_you" && (
+            <p className="notice" style={{ background: "var(--status-urgent-bg)", borderColor: "var(--status-urgent-border)", color: "var(--status-urgent-ink)" }}>
+              {t("out.concern_title")}. {t("out.tell_desk")}
+            </p>
+          )}
           <h2>{t("sf.near_you")}</h2>
           <div className="row">
-            <button className="btn secondary small" onClick={useLocation}>📍 {t("sf.use_location")}</button>
+            <button className="btn secondary small" onClick={useLocation}>{t("sf.use_location")}</button>
             <label className="field" style={{ flex: 1, margin: 0 }}>
               <span className="sr-only">{t("sf.area")}</span>
               <input type="text" placeholder={t("sf.area")} value={area} onChange={(e) => { setCoords(null); setArea(e.target.value); }} />

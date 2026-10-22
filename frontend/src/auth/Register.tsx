@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../shared/auth";
 import { LANGS, LanguageSwitch, useI18n } from "../shared/i18n";
 import { Layout } from "../shared/Layout";
-import { ErrorBox } from "../shared/ui";
+import { Button, ErrorBox } from "../shared/ui";
 
 export default function Register() {
   const { register } = useAuth();
@@ -15,6 +15,7 @@ export default function Register() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
     setErr(null);
     try {
@@ -50,9 +51,10 @@ export default function Register() {
         <label className="field">{t("auth.area")}<input value={f.area} onChange={set("area")} maxLength={80} /></label>
         <p className="muted small-text">{t("auth.no_phone")}</p>
         <ErrorBox error={err} />
-        <button className="btn block" disabled={busy || (!f.age && !f.dob)}>{t("auth.register")}</button>
+        <Button className="block" busy={busy} disabled={!f.age && !f.dob}>{t("auth.register")}</Button>
       </form>
       <p><Link to="/login">{t("auth.have_account")}</Link></p>
     </Layout>
   );
 }
+

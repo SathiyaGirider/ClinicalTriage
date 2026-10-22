@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "./i18n";
 
+import { MicIcon, MicOffIcon } from "./icons";
+
 // Browser speech recognition only. Audio never leaves the browser through our code;
 // we only ever send the text the patient confirms. Never auto-submits.
 type SR = any;
@@ -38,7 +40,8 @@ export function MicButton({ onText, lang }: { onText: (text: string) => void; la
   const stop = () => recRef.current?.stop();
   return (
     <button type="button" className={`btn mic ${listening ? "listening" : ""}`} onClick={listening ? stop : start} aria-pressed={listening}>
-      <span aria-hidden>🎤</span> {listening ? t("intake.mic_stop") : t("intake.mic")}
+      {listening ? <MicOffIcon width={16} height={16} /> : <MicIcon width={16} height={16} />}
+      <span>{listening ? t("intake.mic_stop") : t("intake.mic")}</span>
       {listening && <span className="sr-only">{t("intake.listening")}</span>}
     </button>
   );

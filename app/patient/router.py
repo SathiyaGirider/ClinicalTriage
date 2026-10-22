@@ -68,6 +68,7 @@ class ProfileRequest(BaseModel):
     dob: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
     language: Optional[Literal["en", "ta"]] = None
     area: Optional[str] = Field(default=None, max_length=80)
+    abha_address: Optional[str] = Field(default=None, pattern=r"^[a-zA-Z0-9._-]+@(abdm|demo|sbx)$")
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lon: Optional[float] = Field(default=None, ge=-180, le=180)
 
@@ -86,8 +87,10 @@ def profile(req: ProfileRequest, user: User = Depends(require_patient), db: Sess
         p.language = req.language
     if req.area is not None:
         p.area = req.area
+    if req.abha_address is not None:
+        p.abha_address = req.abha_address.strip()
     if req.lat is not None and req.lon is not None:
         p.lat, p.lon = req.lat, req.lon
     db.add(p)
     db.commit()
-    return {"full_name": user.full_name, "age": p.dob_or_age, "language": p.language, "area": p.area}
+    return {"full_name": user.full_name, "age": p.dob_or_age, "language": p.language, "area": p.area, "abha_address": p.abha_address}

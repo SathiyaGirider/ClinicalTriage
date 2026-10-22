@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, fmtDate, fmtTime, getToken, mapsLink, post } from "../shared/api";
 import { useI18n } from "../shared/i18n";
 import { Card, ErrorBox, Loading } from "../shared/ui";
+import { AlertTriangleIcon, CalendarIcon, CheckIcon, EmergencyCrossIcon, MapPinIcon, PhoneIcon } from "../shared/icons";
 
 export type Hospital = { id: number; name: string; address: string; area: string; er_phone: string; er_note?: string; walk_in_window_text: string; opd_hours?: string };
 export type Appointment = {
@@ -16,7 +17,8 @@ export function Directions({ h }: { h: Hospital }) {
   const { t } = useI18n();
   return (
     <a className="btn secondary small" href={mapsLink(h.name, h.address)} target="_blank" rel="noreferrer">
-      🧭 {t("common.directions")}
+      <MapPinIcon width={16} height={16} />
+      <span>{t("common.directions")}</span>
     </a>
   );
 }
@@ -35,11 +37,14 @@ export function RoutineOutcome({ appt }: { appt: Appointment }) {
   const s = appt.session;
   return (
     <div>
-      <h1>✅ {t("out.routine_title")}</h1>
+      <div className="row" style={{ marginBottom: "1rem" }}>
+        <CheckIcon width={28} height={28} style={{ color: "var(--status-routine-solid)" }} />
+        <h1 style={{ margin: 0 }}>{t("out.routine_title")}</h1>
+      </div>
       <Card className="ok">
-        <div className="muted">{t("out.token")}</div>
+        <div className="muted small-text">{t("out.token")}</div>
         <div className="token" data-testid="token">{appt.token_label}</div>
-        <p>
+        <p style={{ marginTop: "0.5rem" }}>
           <strong>{appt.doctor?.name}</strong> · {appt.doctor?.specialty}<br />
           {appt.hospital?.name}<br />
           {fmtDate(appt.date, lang)} · {s ? `${t(`book.${s.label}`)} ${s.window_start}–${s.window_end}` : ""}
@@ -49,14 +54,17 @@ export function RoutineOutcome({ appt }: { appt: Appointment }) {
             <strong>{t("out.est")}:</strong> {fmtTime(appt.est_call_from)} – {fmtTime(appt.est_call_to)} <span className="pill">{t("common.approximate")}</span>
           </p>
         )}
-        <p className="small-text">{appt.hospital?.address}</p>
-        <div className="row">
+        <p className="small-text muted">{appt.hospital?.address}</p>
+        <div className="row" style={{ marginTop: "0.75rem" }}>
           {appt.hospital && <Directions h={appt.hospital} />}
-          <button className="btn secondary small" onClick={() => downloadIcs(appt.id)}>📅 {t("out.ics")}</button>
+          <button className="btn secondary small" onClick={() => downloadIcs(appt.id)}>
+            <CalendarIcon width={16} height={16} />
+            <span>{t("out.ics")}</span>
+          </button>
         </div>
       </Card>
       <p className="notice">{t("out.arrive_note")}</p>
-      <Link className="btn block" to="/patient/appointments">{t("out.see_appointments")}</Link>
+      <Link className="btn block" to="/patient/appointments" style={{ marginTop: "1rem" }}>{t("out.see_appointments")}</Link>
     </div>
   );
 }
@@ -67,29 +75,40 @@ export function EmergencyScreen({ hospital, numbers }: { hospital?: Hospital | n
   return (
     <div className="emergency-screen" role="alertdialog" aria-labelledby="em-title">
       <div className="inner">
-        <div style={{ fontSize: "3rem" }} aria-hidden>🚑</div>
-        <h1 id="em-title">{t("out.emergency_title")}</h1>
+        <div style={{ marginBottom: "1rem" }}>
+          <EmergencyCrossIcon width={48} height={48} style={{ color: "#ffffff" }} />
+        </div>
+        <h1 id="em-title" style={{ marginBottom: "1rem" }}>{t("out.emergency_title")}</h1>
         {hospital && (
           <div className="card">
             <h2>{t("out.er_address")}</h2>
             <p><strong>{hospital.name}</strong><br />{hospital.address}</p>
-            {hospital.er_note && <p className="small-text">{hospital.er_note}</p>}
-            <div className="row">
-              <a className="btn" href={`tel:${hospital.er_phone.replace(/[^0-9+]/g, "")}`}>📞 {t("out.call")} {hospital.er_phone}</a>
-              <a className="btn" href={mapsLink(hospital.name, hospital.address)} target="_blank" rel="noreferrer">🧭 {t("common.directions")}</a>
+            {hospital.er_note && <p className="small-text muted">{hospital.er_note}</p>}
+            <div className="row" style={{ marginTop: "0.75rem" }}>
+              <a className="btn danger" href={`tel:${hospital.er_phone.replace(/[^0-9+]/g, "")}`}>
+                <PhoneIcon width={16} height={16} />
+                <span>{t("out.call")} {hospital.er_phone}</span>
+              </a>
+              <a className="btn secondary" href={mapsLink(hospital.name, hospital.address)} target="_blank" rel="noreferrer">
+                <MapPinIcon width={16} height={16} />
+                <span>{t("common.directions")}</span>
+              </a>
             </div>
           </div>
         )}
         <div className="card">
           <h2>{t("out.emergency_numbers")}</h2>
-          <div className="row">
+          <div className="row" style={{ marginTop: "0.5rem" }}>
             {numbers.map((n) => (
-              <a key={n} className="btn" href={`tel:${n}`} style={{ fontSize: "1.4rem" }}>📞 {n}</a>
+              <a key={n} className="btn danger" href={`tel:${n}`} style={{ fontSize: "1.2rem" }}>
+                <PhoneIcon width={20} height={20} />
+                <span>{n}</span>
+              </a>
             ))}
           </div>
         </div>
-        <p>{t("out.no_booking")}</p>
-        <Link className="btn" to="/patient">{t("nav.home")}</Link>
+        <p style={{ marginTop: "1.5rem", color: "#fca5a5" }}>{t("out.no_booking")}</p>
+        <Link className="btn secondary" to="/patient" style={{ marginTop: "0.75rem" }}>{t("nav.home")}</Link>
       </div>
     </div>
   );
@@ -131,8 +150,13 @@ export function ConcerningOutcome({ intakeId, doctorId, hospitalId, specialty, o
   };
   return (
     <div>
-      <h1>⚠️ {t("out.concern_title")}</h1>
-      <p className="notice">{t("out.tell_desk")}</p>
+      <div className="row" style={{ marginBottom: "1rem" }}>
+        <AlertTriangleIcon width={28} height={28} style={{ color: "var(--status-urgent-solid)" }} />
+        <h1 style={{ margin: 0 }}>{t("out.concern_title")}</h1>
+      </div>
+      <p className="notice" style={{ background: "var(--status-urgent-bg)", borderColor: "var(--status-urgent-border)", color: "var(--status-urgent-ink)" }}>
+        {t("out.tell_desk")}
+      </p>
       <ErrorBox error={err} onRetry={() => { setErr(null); load(); }} />
       {!today ? <Loading /> : (
         <>
@@ -142,8 +166,10 @@ export function ConcerningOutcome({ intakeId, doctorId, hospitalId, specialty, o
               {today.sessions.map((s) => (
                 <Card key={s.id}>
                   <strong>{s.doctor.name}</strong> · {s.doctor.specialty}<br />
-                  {t(`book.${s.label}`)} {s.window_start}–{s.window_end} · {t("book.tokens_left", { left: s.urgent_tokens_left })}
-                  <button className="btn block" style={{ marginTop: "0.5rem" }} disabled={busy} onClick={() => pick(s.id)}>{t("out.pick_session")}</button>
+                  <span className="small-text muted">
+                    {t(`book.${s.label}`)} {s.window_start}–{s.window_end} · {t("book.tokens_left", { left: s.urgent_tokens_left })}
+                  </span>
+                  <button className="btn block" style={{ marginTop: "0.75rem" }} disabled={busy} onClick={() => pick(s.id)}>{t("out.pick_session")}</button>
                 </Card>
               ))}
             </>
@@ -159,11 +185,11 @@ export function ConcerningOutcome({ intakeId, doctorId, hospitalId, specialty, o
           {today.hospital && (
             <Card>
               <strong>{today.hospital.name}</strong><br />
-              <span className="small-text">{today.hospital.address}</span>
+              <span className="small-text muted">{today.hospital.address}</span>
               <div className="row" style={{ marginTop: "0.5rem" }}><Directions h={today.hospital} /></div>
             </Card>
           )}
-          {walkIn && <Link className="btn block" to="/patient/appointments">{t("out.see_appointments")}</Link>}
+          {walkIn && <Link className="btn block" to="/patient/appointments" style={{ marginTop: "1rem" }}>{t("out.see_appointments")}</Link>}
         </>
       )}
     </div>

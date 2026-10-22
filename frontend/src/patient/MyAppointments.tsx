@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, fmtDate, fmtTime, post } from "../shared/api";
 import { useI18n } from "../shared/i18n";
-import { Card, ErrorBox, Loading } from "../shared/ui";
+import { Card, ErrorBox, Loading, Dialog, Button } from "../shared/ui";
 import { MicButton } from "../shared/voice";
 import { Directions, type Appointment } from "./Outcomes";
 import { SessionPicker } from "./Pickers";
@@ -57,9 +57,20 @@ function LiveCard({ appt, reload }: { appt: Appointment; reload: () => void }) {
   }, [poll]);
   const a = st ?? (appt as Status);
   const isToday = !!a.is_today;
-  const cancel = async () => {
-    if (!window.confirm(t("appt.cancel_confirm"))) return;
-    try { await post(`/booking/${appt.id}/cancel`); reload(); } catch (e) { setErr(e); }
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const doCancel = async () => {
+    setCancelling(true);
+    try {
+      await post(`/booking/${appt.id}/cancel`);
+      setConfirmCancel(false);
+      reload();
+    } catch (e) {
+      setErr(e);
+    } finally {
+      setCancelling(false);
+    }
   };
   const reschedule = async (sessionId: number) => {
     try { await post(`/booking/${appt.id}/reschedule`, { session_id: sessionId }); setMoving(false); reload(); } catch (e) { setErr(e); }
@@ -90,15 +101,37 @@ function LiveCard({ appt, reload }: { appt: Appointment; reload: () => void }) {
       <div className="row">
         {a.hospital && <Directions h={a.hospital} />}
         {isToday && ["booked", "called_absent", "expected_today"].includes(a.state) && !asking && (
-          <button className="btn" onClick={() => setAsking(true)}>🙋 {t("appt.im_here")}</button>
+          <button className="btn" onClick={() => setAsking(true)}>{t("appt.im_here")}</button>
         )}
         {a.state === "booked" && a.status === "booked" && <button className="btn ghost small" onClick={() => setMoving((m) => !m)}>{t("appt.reschedule")}</button>}
-        {["booked", "expected_today"].includes(a.status) && <button className="btn ghost small" onClick={cancel}>{t("appt.cancel")}</button>}
+        {["booked", "expected_today"].includes(a.status) && (
+          <button className="btn ghost small" onClick={() => setConfirmCancel(true)}>
+            {t("appt.cancel")}
+          </button>
+        )}
       </div>
       {a.state === "arrived_unconfirmed" && <p className="notice">{t("appt.waiting_nurse")}</p>}
       {asking && <ImHere appt={appt} onDone={() => { setAsking(false); poll(); }} />}
       {moving && a.doctor && <SessionPicker doctorId={a.doctor.id} onPick={(s) => reschedule(s.id)} />}
       <ErrorBox error={err} />
+
+      <Dialog
+        open={confirmCancel}
+        onClose={() => !cancelling && setConfirmCancel(false)}
+        title={t("appt.cancel")}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setConfirmCancel(false)} disabled={cancelling}>
+              {t("common.back")}
+            </Button>
+            <Button variant="danger" onClick={doCancel} loading={cancelling} disabled={cancelling}>
+              {t("appt.cancel")}
+            </Button>
+          </>
+        }
+      >
+        <p style={{ margin: 0 }}>{t("appt.cancel_confirm")}</p>
+      </Dialog>
     </Card>
   );
 }

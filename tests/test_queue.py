@@ -221,3 +221,14 @@ def test_assisted_intake_for_walk_in(client, H):
     assert out["decision"]["priority"] == "same-day" and out["decision"]["decided_by"] == "rule"
     q = queue_of(client, H, doc)
     assert w["entry"]["id"] in ids(q["needs_attention"])
+
+
+def test_walk_in_omits_doctor_id_and_assigns_nurse_doctor(client, H):
+    doc = doctor_by_email("dr.gm.adyar@example.com")
+    w = client.post("/queue/walk-in", json={"full_name": "No Doc Param", "age": 45, "language": "en"}, headers=H(NURSE)).json()
+    assert w["entry"]["token_label"].startswith("W-")
+    appt_id = w["appointment_id"]
+    from app.models import Appointment
+    with Session(get_engine()) as s:
+        appt = s.get(Appointment, appt_id)
+        assert appt.doctor_id == doc.id

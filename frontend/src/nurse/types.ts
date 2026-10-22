@@ -7,7 +7,12 @@ export type QEntry = {
   red_flags: string[]; rule_based: boolean; audit_notes: string[];
 };
 export type DoctorBlock = {
-  doctor: { id: number; name: string; specialty: string }; mode: "token" | "nurse"; now_serving: string | null; with_doctor: QEntry | null; next: QEntry | null;
+  doctor: { id: number; name: string; specialty: string; room?: string }; mode: "token" | "nurse"; now_serving: string | null; with_doctor: QEntry | null; next: QEntry | null;
   needs_attention: QEntry[]; present_waiting: QEntry[]; booked_not_arrived: QEntry[]; expected_today_flagged: QEntry[];
   still_to_come: number; done_count: number; total: number;
+};
+export type QueueResp = {
+  date: string; session: string;
+  assigned_doctor?: { id: number; name: string; specialty: string; room: string } | null;
+  doctors: DoctorBlock[];
 };

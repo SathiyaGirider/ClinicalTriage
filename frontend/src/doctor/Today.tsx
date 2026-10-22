@@ -5,8 +5,12 @@ import { ErrorBox, Loading } from "../shared/ui";
 import { EntryHeader, PriorityChip } from "../nurse/bits";
 import type { QEntry } from "../nurse/types";
 
-type TodayResp = { doctor: { name: string; specialty: string; hospital: string }; date: string; session: string; with_doctor: QEntry | null; next: QEntry | null;
-  present: QEntry[]; not_arrived_count: number; done_count: number; order_note: string };
+type TodayResp = {
+  doctor: { name: string; specialty: string; hospital: string; room?: string };
+  assigned_nurse?: { id: number; name: string } | null;
+  date: string; session: string; with_doctor: QEntry | null; next: QEntry | null;
+  present: QEntry[]; not_arrived_count: number; done_count: number; order_note: string;
+};
 
 export default function Today() {
   const [d, setD] = useState<TodayResp | null>(null);
@@ -20,7 +24,16 @@ export default function Today() {
   if (!d) return err ? <ErrorBox error={err} onRetry={load} /> : <Loading />;
   return (
     <div>
-      <h1>{d.doctor.name} · {d.doctor.specialty} · {d.date}</h1>
+      <div className="spread" style={{ marginBottom: "1rem" }}>
+        <div>
+          <h1 style={{ marginBottom: "0.25rem" }}>
+            {d.doctor.name} · {d.doctor.specialty} · {d.doctor.room ?? "OPD Room"} · {d.date}
+          </h1>
+          <div className="small-text muted">
+            {d.doctor.hospital} · Assigned Nurse: <strong>{d.assigned_nurse?.name ?? "None assigned"}</strong>
+          </div>
+        </div>
+      </div>
       <ErrorBox error={err} />
       <div className="staff-grid">
         <div>

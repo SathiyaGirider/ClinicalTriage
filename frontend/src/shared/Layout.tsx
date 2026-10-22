@@ -13,8 +13,15 @@ export function Layout({ children, nav, wide = false }: { children: ReactNode; n
       <SafetyBanner />
       <header className="topbar">
         <Link to="/" className="brand">
-          <img src="/icon.svg" alt="" width={28} height={28} /> {t("app.name")}
+          <img src="/icon.svg" alt="" width={24} height={24} /> {t("app.name")}
         </Link>
+        {me && (
+          <div className="topbar-user">
+            {me.hospital_name && <span>{me.hospital_name} · </span>}
+            <strong>{me.full_name}</strong>
+            <span className="muted" style={{ textTransform: "capitalize" }}> ({me.role})</span>
+          </div>
+        )}
         <div className="topbar-right">
           {me?.role === "patient" && <LanguageSwitch />}
           {me && (

@@ -53,12 +53,28 @@ def doctor_hospital(db: Session, doctor_id: int) -> int:
     return d.hospital_id if d else -1
 
 
+def get_nurse_assigned_doctor(db: Session, nurse: User) -> Doctor:
+    from app.models import NurseAssignment
+    assignment = db.exec(select(NurseAssignment).where(NurseAssignment.nurse_id == nurse.id)).first()
+    if not assignment:
+        log_action(db, nurse, "unassigned_nurse_blocked", None, None, None, "Nurse has no assigned doctor", hospital_id=nurse.hospital_id)
+        raise HTTPException(403, "No doctor assigned. Please contact the administrator.")
+    doc = db.get(Doctor, assignment.doctor_id)
+    if not doc:
+        raise HTTPException(403, "Assigned doctor not found")
+    return doc
+
+
 def get_entry_for_staff(db: Session, entry_id: int, user: User) -> QueueEntryRow:
     e = db.get(QueueEntryRow, entry_id)
     if e is None:
         raise HTTPException(404, "Queue entry not found")
-    if user.role == "nurse" and doctor_hospital(db, e.doctor_id) != user.hospital_id:
-        raise HTTPException(403, "This patient is not in your hospital's queue")
+    if user.role == "nurse":
+        doc = get_nurse_assigned_doctor(db, user)
+        if e.doctor_id != doc.id:
+            log_action(db, user, "cross_doctor_access_blocked", None, str(e.doctor_id), str(doc.id),
+                       "Nurse attempted to access another doctor's queue entry", hospital_id=user.hospital_id)
+            raise HTTPException(403, "Not allowed: this patient belongs to another doctor")
     if user.role == "doctor":
         doc = db.exec(select(Doctor).where(Doctor.user_id == user.id)).first()
         if not doc or doc.id != e.doctor_id:

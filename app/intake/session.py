@@ -312,7 +312,7 @@ def build_intake_result(state: dict, patient_id: str, run_extractor: bool = True
             conf = "low"
         if not extractor_llm:
             # Deterministic fallback extractor: low unless our vocabulary recognised the words.
-            conf = "low" if not tags else ("medium" if conf == "high" else conf)
+            conf = "low" if not tags else conf
         ir.input_confidence = conf
     return ir
 
