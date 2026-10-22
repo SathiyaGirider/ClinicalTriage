@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, post } from "../shared/api";
-import { ErrorBox, Loading } from "../shared/ui";
+import { ErrorBox, Loading, Dialog, Button, Field } from "../shared/ui";
 import IntakeWizard, { type SessionView } from "../patient/IntakeWizard";
 import { EntryHeader, PriorityChip } from "./bits";
 import type { QEntry } from "./types";
@@ -105,10 +105,25 @@ export default function EntryDrawer({ entryId, onClose }: { entryId: number; onC
   const [recheck, setRecheck] = useState<string | null>(null);
   const load = () => api<Detail>(`/queue/entry/${entryId}`).then(setD).catch(setErr);
   useEffect(() => { load(); }, [entryId]); // eslint-disable-line react-hooks/exhaustive-deps
-  const flag = async (flagged: boolean) => {
-    const reason = window.prompt(`Reason to ${flagged ? "flag" : "unflag"} (required):`);
-    if (!reason?.trim()) return;
-    try { await post("/queue/flag", { entry_id: entryId, flagged, reason }); load(); } catch (e) { setErr(e); }
+  const [flagModal, setFlagModal] = useState<{ flagged: boolean; reason: string } | null>(null);
+  const [flagSubmitting, setFlagSubmitting] = useState(false);
+
+  const confirmFlag = async () => {
+    if (!flagModal || !flagModal.reason.trim()) return;
+    setFlagSubmitting(true);
+    try {
+      await post("/queue/flag", {
+        entry_id: entryId,
+        flagged: flagModal.flagged,
+        reason: flagModal.reason.trim(),
+      });
+      setFlagModal(null);
+      load();
+    } catch (e) {
+      setErr(e);
+    } finally {
+      setFlagSubmitting(false);
+    }
   };
   return (
     <aside className="drawer" role="dialog" aria-label="Patient details">
@@ -118,7 +133,26 @@ export default function EntryDrawer({ entryId, onClose }: { entryId: number; onC
         <>
           <EntryHeader e={d.entry} />
           <PriorityChip e={d.entry} />
-          {d.entry.audit_notes.length > 0 && <p className="small-text">Notes: {d.entry.audit_notes.join(", ").replace(/_/g, " ")}</p>}
+          {d.entry.audit_notes.length > 0 && (
+            <div className="notice small-text" style={{ margin: "0.5rem 0" }}>
+              <strong>Clinical notes:</strong>
+              <ul style={{ margin: "0.25rem 0 0 0", paddingLeft: "1.2rem" }}>
+                {d.entry.audit_notes.map((n) => (
+                  <li key={n}>
+                    {n === "ai_unavailable_escalated"
+                      ? "AI unavailable: escalated for safety"
+                      : n === "llm_fallback_used"
+                      ? "AI estimate unavailable or unsure: fail-safe used"
+                      : n === "fallback_mild_allowlist"
+                      ? "Deterministic fallback: mild allowlist (routine)"
+                      : n === "injection_suspected"
+                      ? "Instruction-like text detected (escalated; safety rules ran on original text)"
+                      : n.replace(/_/g, " ")}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="card">
             <h3>Triage summary</h3>
             {d.lines.length ? <ul className="summary-lines">{d.lines.map((l) => <li key={l}>{l}</li>)}</ul> : <p className="muted">No intake yet. Run assisted intake from the Walk-in tab.</p>}
@@ -144,9 +178,62 @@ export default function EntryDrawer({ entryId, onClose }: { entryId: number; onC
           {recheck && <Recheck entryId={entryId} change={recheck} onDone={() => { setRecheck(null); load(); }} />}
           {d.entry.presence === "present" && <Vitals entryId={entryId} onSaved={load} />}
           <div className="row">
-            {d.entry.flagged ? <button className="btn small secondary" onClick={() => flag(false)}>Unflag</button>
-              : <button className="btn small warn" onClick={() => flag(true)}>Flag for attention</button>}
+            {d.entry.flagged ? (
+              <button
+                className="btn small secondary"
+                onClick={() => setFlagModal({ flagged: false, reason: "" })}
+              >
+                Unflag
+              </button>
+            ) : (
+              <button
+                className="btn small warn"
+                onClick={() => setFlagModal({ flagged: true, reason: "" })}
+              >
+                Flag for attention
+              </button>
+            )}
           </div>
+
+          <Dialog
+            open={!!flagModal}
+            onClose={() => !flagSubmitting && setFlagModal(null)}
+            title={flagModal?.flagged ? "Flag Patient for Attention" : "Remove Attention Flag"}
+            footer={
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => setFlagModal(null)}
+                  disabled={flagSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={flagModal?.flagged ? "warn" : "primary"}
+                  onClick={confirmFlag}
+                  disabled={flagSubmitting || !flagModal?.reason.trim()}
+                  loading={flagSubmitting}
+                >
+                  {flagModal?.flagged ? "Confirm Flag" : "Confirm Unflag"}
+                </Button>
+              </>
+            }
+          >
+            <p className="small-text muted">
+              All flag status changes are logged with actor, timestamp, and clinical rationale.
+            </p>
+            <Field label="Clinical Reason" required>
+              <textarea
+                rows={3}
+                placeholder="State clinical observation or reason for flag change..."
+                value={flagModal?.reason ?? ""}
+                onChange={(e) =>
+                  setFlagModal((prev) => (prev ? { ...prev, reason: e.target.value } : null))
+                }
+                autoFocus
+              />
+            </Field>
+          </Dialog>
         </>
       )}
     </aside>

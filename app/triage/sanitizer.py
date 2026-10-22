@@ -13,7 +13,7 @@ import unicodedata
 from dataclasses import dataclass, field
 
 MAX_FIELD_CHARS = 300
-MAX_TOTAL_CHARS = 4000  # anything longer is "absurd length"
+MAX_TOTAL_CHARS = 15000  # anything longer is "absurd length"
 
 _INJECTION_PATTERNS = [
     # English

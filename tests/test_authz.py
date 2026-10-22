@@ -85,6 +85,54 @@ def test_nurse_other_hospital_blocked(client, H):
     assert client.post("/queue/action", json={"entry_id": eid, "action": "fast_track"}, headers=other).status_code == 403
 
 
+def test_nurse_cross_doctor_in_same_hospital_blocked(client, H):
+    """Nurse A cannot read, check in, flag, or act on Doctor B's queue even in the same hospital."""
+    doc_gm = doctor_by_email("dr.gm.adyar@example.com")
+    a = book_routine(client, H("asha"), session_of(doc_gm.id, timeutil.today()).id)
+    eid = entry_id_for(a["id"])
+    cardio_nurse = H("nurse.cardio.adyar")  # same hospital (Adyar), different assigned doctor
+
+    assert client.get(f"/queue/entry/{eid}", headers=cardio_nurse).status_code == 403
+    assert client.post(f"/queue/{eid}/check-in", json={"outcome": "none"}, headers=cardio_nurse).status_code == 403
+    assert client.post("/queue/action", json={"entry_id": eid, "action": "fast_track"}, headers=cardio_nurse).status_code == 403
+    assert client.post("/queue/flag", json={"entry_id": eid, "flagged": True, "reason": "test"}, headers=cardio_nurse).status_code == 403
+    assert client.post("/queue/vitals", json={"entry_id": eid, "spo2": 98}, headers=cardio_nurse).status_code == 403
+    assert client.post(f"/queue/{eid}/recheck/start", headers=cardio_nurse).status_code == 403
+
+
+def test_nurse_unassigned_blocked(client, H):
+    """A nurse with no assigned doctor is blocked on all queue actions and receives 403."""
+    unassigned = H("nurse.unassigned")
+    assert client.get("/queue", headers=unassigned).status_code == 403
+    assert client.get("/queue/search?query=asha", headers=unassigned).status_code == 403
+    assert client.get("/queue/expected-today", headers=unassigned).status_code == 403
+    assert client.get("/queue/action-log", headers=unassigned).status_code == 403
+    assert client.post("/queue/walk-in", json={"full_name": "Test Walkin", "age": 40, "language": "en"}, headers=unassigned).status_code == 403
+
+
+def test_nurse_queue_ignores_client_doctor_id(client, H):
+    """Nurse queue request strictly ignores any client-supplied doctor_id and returns only assigned doctor."""
+    doc_gm = doctor_by_email("dr.gm.adyar@example.com")
+    doc_cardio = doctor_by_email("dr.cardio.adyar@example.com")
+    # nurse.adyar is assigned to dr.gm.adyar; sending doctor_id=doc_cardio.id must still return doc_gm.id
+    res = client.get(f"/queue?doctor_id={doc_cardio.id}", headers=H("nurse.adyar")).json()
+    assert len(res["doctors"]) == 1
+    assert res["doctors"][0]["doctor"]["id"] == doc_gm.id
+    assert res["assigned_doctor"]["id"] == doc_gm.id
+
+
+def test_seed_pairing_is_one_to_one(client):
+    """Every seeded nurse is paired with exactly one doctor, and every seeded doctor account has one nurse."""
+    from app.models import NurseAssignment
+    with Session(get_engine()) as db:
+        assignments = db.exec(select(NurseAssignment)).all()
+        nurse_ids = [a.nurse_id for a in assignments]
+        doc_ids = [a.doctor_id for a in assignments]
+        assert len(nurse_ids) == len(set(nurse_ids)), "Nurse IDs must be unique (1-to-1)"
+        assert len(doc_ids) == len(set(doc_ids)), "Doctor IDs must be unique (1-to-1)"
+        assert len(assignments) == 6  # 6 account doctors paired with 6 nurses
+
+
 def test_doctor_cannot_read_unrelated_patient(client, H):
     priya = uid("priya@example.com")  # no appointments with anyone
     for d in ("dr.gm.adyar", "dr.derm.adyar"):

@@ -60,9 +60,18 @@ def reclassify_endpoint(req: ReclassifyRequest, user: User = Depends(require_sta
     rec = db.get(IntakeRecord, req.intake_id)
     if rec is None:
         raise HTTPException(404, "Intake not found")
-    appt = db.get(Appointment, rec.appointment_id) if rec.appointment_id else None
-    if appt is None or (user.role == "nurse" and doctor_hospital(db, appt.doctor_id) != user.hospital_id):
-        raise HTTPException(403, "Not a patient in your hospital's queue")
+    if appt is None:
+        raise HTTPException(404, "Appointment not found for intake")
+    if user.role == "nurse":
+        from app.queue.service import get_nurse_assigned_doctor
+        doc = get_nurse_assigned_doctor(db, user)
+        if appt.doctor_id != doc.id:
+            raise HTTPException(403, "Not a patient of your assigned doctor")
+    elif user.role == "doctor":
+        from app.auth.deps import doctor_profile
+        doc = doctor_profile(db, user)
+        if appt.doctor_id != doc.id:
+            raise HTTPException(403, "Not your patient")
     intake = store.load_intake(db, rec.id)
     prev = store.latest_decision(db, rec.id)
     if req.addendum_text:

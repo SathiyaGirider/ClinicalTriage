@@ -24,10 +24,14 @@ router = APIRouter(prefix="/queue", tags=["Queue (nurse)"])
 
 
 def _doctor_in_hospital(db: Session, doctor_id: int, nurse: User) -> Doctor:
-    d = db.get(Doctor, doctor_id)
-    if d is None or d.hospital_id != nurse.hospital_id:
-        raise HTTPException(403, "Doctor is not in your hospital")
-    return d
+    # Nurses are strictly scoped to their one assigned doctor.
+    # Client-supplied doctor_id is ignored or checked against the assignment.
+    doc = q.get_nurse_assigned_doctor(db, nurse)
+    if doctor_id and doctor_id != doc.id:
+        log_action(db, nurse, "cross_doctor_access_blocked", None, str(doctor_id), str(doc.id),
+                   "Nurse attempted action for non-assigned doctor", hospital_id=nurse.hospital_id)
+        raise HTTPException(403, "Not allowed: you are not assigned to this doctor")
+    return doc
 
 
 def _summary_block(db: Session, appt: Appointment) -> dict:
@@ -49,53 +53,51 @@ def _summary_block(db: Session, appt: Appointment) -> dict:
 @router.get("")
 def get_queue(doctor_id: Optional[int] = None, date: Optional[Date] = None, session: Optional[Literal["morning", "afternoon"]] = None,
               nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
-    """Dashboard data: needs attention, present and waiting, booked not arrived, expected today (flagged), doctors."""
+    """Dashboard data: strictly scoped to the nurse's assigned doctor."""
+    d = q.get_nurse_assigned_doctor(db, nurse)
     day = date or timeutil.today()
     label = session or q.current_session_label()
-    docs = db.exec(select(Doctor).where(Doctor.hospital_id == nurse.hospital_id)).all()
-    if doctor_id:
-        docs = [_doctor_in_hospital(db, doctor_id, nurse)]
     now = timeutil.now()
-    out = {"date": day.isoformat(), "session": label, "doctors": []}
-    for d in docs:
-        entries = q.day_entries(db, d.id, day)
-        ordered = q.ordered_waiting(db, d.id, day, label)
-        cur = q.with_doctor(db, d.id, day)
-        attention = [x for x in entries if x.flagged and x.presence == "present" and x.status in ("waiting", "fast_tracked")]
-        attention_c = [q.to_contract(db, x, now) for x in attention]
-        attention_c.sort(key=lambda c: (c.priority != "emergency", c.check_in_ts or ""))
-        not_arrived = [x for x in entries if x.presence in ("booked_not_arrived", "self_reported_arrived", "called_absent")
-                       and x.status == "waiting" and (x.session_label in (label, None))]
-        if not (attention or ordered or cur or not_arrived) and doctor_id is None:
-            continue
-        out["doctors"].append({
-            "doctor": {"id": d.id, "name": d.name, "specialty": d.specialty},
-            "mode": q.get_mode(db, d.id, day, label),
-            "now_serving": cur.token_label if cur else None,
-            "with_doctor": q.to_contract(db, cur, now) if cur else None,
-            "next": q.to_contract(db, ordered[0], now) if ordered else None,
-            "needs_attention": attention_c,
-            "present_waiting": [q.to_contract(db, x, now) for x in ordered],
-            "booked_not_arrived": [q.to_contract(db, x, now) for x in not_arrived if not x.flagged],
-            "expected_today_flagged": [q.to_contract(db, x, now) for x in not_arrived if x.flagged],
-            "still_to_come": len(not_arrived),
-            "done_count": len([x for x in entries if x.status == "done"]),
-            "total": len(entries),
-        })
-    return out
+    entries = q.day_entries(db, d.id, day)
+    ordered = q.ordered_waiting(db, d.id, day, label)
+    cur = q.with_doctor(db, d.id, day)
+    attention = [x for x in entries if x.flagged and x.presence == "present" and x.status in ("waiting", "fast_tracked")]
+    attention_c = [q.to_contract(db, x, now) for x in attention]
+    attention_c.sort(key=lambda c: (c.priority != "emergency", c.check_in_ts or ""))
+    not_arrived = [x for x in entries if x.presence in ("booked_not_arrived", "self_reported_arrived", "called_absent")
+                   and x.status == "waiting" and (x.session_label in (label, None))]
+    doc_block = {
+        "doctor": {"id": d.id, "name": d.name, "specialty": d.specialty, "room": d.room},
+        "mode": q.get_mode(db, d.id, day, label),
+        "now_serving": cur.token_label if cur else None,
+        "with_doctor": q.to_contract(db, cur, now) if cur else None,
+        "next": q.to_contract(db, ordered[0], now) if ordered else None,
+        "needs_attention": attention_c,
+        "present_waiting": [q.to_contract(db, x, now) for x in ordered],
+        "booked_not_arrived": [q.to_contract(db, x, now) for x in not_arrived if not x.flagged],
+        "expected_today_flagged": [q.to_contract(db, x, now) for x in not_arrived if x.flagged],
+        "still_to_come": len(not_arrived),
+        "done_count": len([x for x in entries if x.status == "done"]),
+        "total": len(entries),
+    }
+    return {
+        "date": day.isoformat(),
+        "session": label,
+        "assigned_doctor": {"id": d.id, "name": d.name, "specialty": d.specialty, "room": d.room},
+        "doctors": [doc_block],
+    }
 
 
 @router.get("/search")
 def search(query: str = Query(min_length=1, max_length=60), nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
-    """Check-in desk: today's entries in this hospital by token label or name."""
+    """Check-in desk: today's entries for the assigned doctor by token label or name."""
+    d = q.get_nurse_assigned_doctor(db, nurse)
     term = query.strip().lower()
-    doc_ids = [d.id for d in db.exec(select(Doctor).where(Doctor.hospital_id == nurse.hospital_id)).all()]
     out = []
-    for d_id in doc_ids:
-        for e in q.day_entries(db, d_id, timeutil.today()):
-            c = q.to_contract(db, e)
-            if term in (c.token_label or "").lower() or term in c.patient_name.lower() or term == str(c.token_number):
-                out.append(c)
+    for e in q.day_entries(db, d.id, timeutil.today()):
+        c = q.to_contract(db, e)
+        if term in (c.token_label or "").lower() or term in c.patient_name.lower() or term == str(c.token_number):
+            out.append(c)
     return out[:30]
 
 
@@ -136,7 +138,7 @@ class WalkInRequest(BaseModel):
     full_name: str = Field(min_length=1, max_length=120)
     age: int = Field(ge=0, le=125)
     language: Literal["en", "ta"] = "en"
-    doctor_id: int
+    doctor_id: Optional[int] = None  # ignored for nurses; always uses nurse's assigned doctor
 
     model_config = {"extra": "forbid"}
 
@@ -144,7 +146,7 @@ class WalkInRequest(BaseModel):
 @router.post("/walk-in", status_code=201)
 def walk_in(req: WalkInRequest, nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
     """Register a walk-in (no phone, no ID), issue a W token now, then run assisted intake."""
-    doc = _doctor_in_hospital(db, req.doctor_id, nurse)
+    doc = q.get_nurse_assigned_doctor(db, nurse)
     user = User(email=f"walkin-{new_id()}@walkin.invalid", password_hash=UNUSABLE_PASSWORD, role="patient", full_name=req.full_name.strip())
     db.add(user)
     db.flush()
@@ -154,7 +156,7 @@ def walk_in(req: WalkInRequest, nurse: User = Depends(require_nurse), db: Sessio
     db.add(appt)
     db.flush()
     e = q.create_entry(db, appt, None, False, None)
-    log_action(db, nurse, "register_walk_in", user.id, None, str(appt.id), None, commit=False)
+    log_action(db, nurse, "register_walk_in", user.id, None, str(appt.id), None, hospital_id=doc.hospital_id, commit=False)
     db.commit()
     res = q.check_in(db, e, "none", None, nurse)
     return {"patient_id": user.id, "appointment_id": appt.id, **res}
@@ -198,7 +200,7 @@ def action(req: ActionRequest, nurse: User = Depends(require_nurse), db: Session
 
 
 class OrderRequest(BaseModel):
-    doctor_id: int
+    doctor_id: Optional[int] = None  # ignored for nurses; always uses nurse's assigned doctor
     date: Optional[Date] = None
     session: Literal["morning", "afternoon"]
     mode: Literal["token", "nurse"]
@@ -207,23 +209,23 @@ class OrderRequest(BaseModel):
 
 @router.post("/order")
 def order(req: OrderRequest, nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
-    _doctor_in_hospital(db, req.doctor_id, nurse)
+    doc = q.get_nurse_assigned_doctor(db, nurse)
     day = req.date or timeutil.today()
-    before = q.get_mode(db, req.doctor_id, day, req.session)
-    q.set_mode(db, req.doctor_id, day, req.session, req.mode)
+    before = q.get_mode(db, doc.id, day, req.session)
+    q.set_mode(db, doc.id, day, req.session, req.mode)
     if req.mode == "token":
-        q.clear_positions(db, req.doctor_id, day, req.session)
+        q.clear_positions(db, doc.id, day, req.session)
     db.flush()
     if req.mode == "nurse" and req.ordered_entry_ids:
-        current = {e.id: e for e in q.ordered_waiting(db, req.doctor_id, day, req.session) if e.status == "waiting"}
+        current = {e.id: e for e in q.ordered_waiting(db, doc.id, day, req.session) if e.status == "waiting"}
         if set(req.ordered_entry_ids) - set(current):
             raise HTTPException(422, "ordered_entry_ids must be waiting patients of this doctor and session")
         listed = [current[i] for i in req.ordered_entry_ids]
         rest = [e for i, e in current.items() if i not in req.ordered_entry_ids]
         q.pin_order(db, listed + rest)
-    log_action(db, nurse, "order_mode", None, before, req.mode, None, commit=False)
+    log_action(db, nurse, "order_mode", None, before, req.mode, None, hospital_id=doc.hospital_id, commit=False)
     db.commit()
-    return {"mode": req.mode, "present_waiting": [q.to_contract(db, e) for e in q.ordered_waiting(db, req.doctor_id, day, req.session)]}
+    return {"mode": req.mode, "present_waiting": [q.to_contract(db, e) for e in q.ordered_waiting(db, doc.id, day, req.session)]}
 
 
 class FlagRequest(BaseModel):
@@ -249,21 +251,28 @@ def vitals(req: VitalsRequest, nurse: User = Depends(require_nurse), db: Session
 
 @router.get("/expected-today")
 def expected_today(doctor_id: Optional[int] = None, nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
-    docs = [_doctor_in_hospital(db, doctor_id, nurse)] if doctor_id else db.exec(select(Doctor).where(Doctor.hospital_id == nurse.hospital_id)).all()
+    doc = q.get_nurse_assigned_doctor(db, nurse)
     out = []
-    for d in docs:
-        for e in q.day_entries(db, d.id, timeutil.today()):
-            if e.presence != "present" and e.status == "waiting":
-                out.append(q.to_contract(db, e))
+    for e in q.day_entries(db, doc.id, timeutil.today()):
+        if e.presence != "present" and e.status == "waiting":
+            out.append(q.to_contract(db, e))
     return {"flagged": [c for c in out if c.flagged], "others": [c for c in out if not c.flagged]}
 
 
 @router.get("/action-log")
 def action_log(limit: int = Query(200, ge=1, le=1000), nurse: User = Depends(require_nurse), db: Session = Depends(get_session)):
-    rows = db.exec(select(ActionLog).where(ActionLog.hospital_id == nurse.hospital_id).order_by(ActionLog.id.desc()).limit(limit)).all()
+    doc = q.get_nurse_assigned_doctor(db, nurse)
+    assigned_patient_ids = {a.patient_id for a in db.exec(select(Appointment).where(Appointment.doctor_id == doc.id)).all()}
+    rows = db.exec(
+        select(ActionLog)
+        .where((ActionLog.actor_user_id == nurse.id) | (ActionLog.hospital_id == doc.hospital_id))
+        .order_by(ActionLog.id.desc())
+        .limit(limit)
+    ).all()
+    filtered_rows = [r for r in rows if r.actor_user_id == nurse.id or (r.patient_id and r.patient_id in assigned_patient_ids)]
     names = {}
     out = []
-    for r in rows:
+    for r in filtered_rows:
         if r.actor_user_id and r.actor_user_id not in names:
             u = db.get(User, r.actor_user_id)
             names[r.actor_user_id] = u.full_name if u else str(r.actor_user_id)
@@ -273,8 +282,11 @@ def action_log(limit: int = Query(200, ge=1, le=1000), nurse: User = Depends(req
 
 @router.get("/doctors")
 def doctors(user: User = Depends(require_staff), db: Session = Depends(get_session)):
+    if user.role == "nurse":
+        doc = q.get_nurse_assigned_doctor(db, user)
+        return [{"id": doc.id, "name": doc.name, "specialty": doc.specialty, "room": doc.room}]
     hid = user.hospital_id
     if user.role == "doctor":
         doc = db.exec(select(Doctor).where(Doctor.user_id == user.id)).first()
         hid = doc.hospital_id if doc else None
-    return [{"id": d.id, "name": d.name, "specialty": d.specialty} for d in db.exec(select(Doctor).where(Doctor.hospital_id == hid)).all()]
+    return [{"id": d.id, "name": d.name, "specialty": d.specialty, "room": d.room} for d in db.exec(select(Doctor).where(Doctor.hospital_id == hid)).all()]

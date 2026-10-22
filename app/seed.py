@@ -25,7 +25,7 @@ from app.common.ids import token_label
 from app.common.schemas import IntakeResult, TriageDecision
 from app.config import settings
 from app.db import get_engine, init_db
-from app.models import (Appointment, ClinicSession, Doctor, Encounter, Hospital, IntakeRecord, Patient, Prescription,
+from app.models import (Appointment, ClinicSession, Doctor, Encounter, Hospital, IntakeRecord, NurseAssignment, Patient, Prescription,
                         QueueEntryRow, TriageDecisionRow, User)
 from app.triage.summary import template_summary
 
@@ -133,9 +133,10 @@ def seed(db: Session) -> dict:
     for hi, h in enumerate(hospitals):
         for spec, minutes in SPECIALTY_MINUTES.items():
             name = f"Dr. {FIRST[i % len(FIRST)]} {LAST[(i * 7) % len(LAST)]}"
+            room = f"Room {101 + (hi * 100) + (i % 20)}"
             d = Doctor(hospital_id=h.id, name=name, specialty=spec, area=h.area, lat=h.lat + rng.uniform(-0.004, 0.004),
                        lon=h.lon + rng.uniform(-0.004, 0.004), consult_minutes=minutes,
-                       bio=f"{spec} (synthetic demo profile).")
+                       bio=f"{spec} (synthetic demo profile).", room=room)
             db.add(d)
             doctors[(hi, spec)] = d
             i += 1
@@ -149,32 +150,51 @@ def seed(db: Session) -> dict:
         db.flush()
         d.user_id = u.id
         db.add(d)
-        accounts.append(("doctor", u.email, f"{d.name}, {spec}, {hospitals[hi].name}"))
-    for hi, local in ((0, "nurse.adyar"), (1, "nurse.mylapore")):
-        u = User(email=f"{local}@{DOMAIN}", password_hash=pw_hash, role="nurse", full_name=f"Nurse {FIRST[hi + 10]} (demo)",
+        accounts.append(("doctor", u.email, f"{d.name}, {spec}, {d.room}, {hospitals[hi].name}"))
+
+    # Exactly one nurse paired with each account doctor (1-to-1 assignment)
+    nurse_doctor_pairs = [
+        ((0, "General Medicine"), "nurse.adyar", "Nurse Meena (demo)"),
+        ((0, "Cardiology"), "nurse.cardio.adyar", "Nurse Arjun (demo)"),
+        ((0, "Dermatology"), "nurse.derm.adyar", "Nurse Kavitha (demo)"),
+        ((0, "Paediatrics"), "nurse.paeds.adyar", "Nurse Suresh (demo)"),
+        ((0, "Neurology"), "nurse.neuro.adyar", "Nurse Lakshmi (demo)"),
+        ((1, "General Medicine"), "nurse.mylapore", "Nurse Prakash (demo)"),
+    ]
+    for (hi, spec), local, nurse_name in nurse_doctor_pairs:
+        d = doctors[(hi, spec)]
+        u = User(email=f"{local}@{DOMAIN}", password_hash=pw_hash, role="nurse", full_name=nurse_name,
                  hospital_id=hospitals[hi].id)
         db.add(u)
-        accounts.append(("nurse", u.email, hospitals[hi].name))
+        db.flush()
+        db.add(NurseAssignment(nurse_id=u.id, doctor_id=d.id))
+        accounts.append(("nurse", u.email, f"{nurse_name} -> {d.name} ({spec}), {hospitals[hi].name}"))
+
+    # One unassigned nurse for testing unassigned guardrails
+    u_unassigned = User(email=f"nurse.unassigned@{DOMAIN}", password_hash=pw_hash, role="nurse",
+                        full_name="Nurse Deepa (unassigned demo)", hospital_id=hospitals[0].id)
+    db.add(u_unassigned)
+    accounts.append(("nurse", u_unassigned.email, f"Unassigned (demo), {hospitals[0].name}"))
 
     patients = []
-    for email, name, age, lang, area, consent, (lat, lon) in [
-        ("asha", "Asha Kumar (demo)", "34", "en", "Adyar", True, (13.004, 80.255)),
-        ("ravi", "Ravi Shankar (demo)", "67", "ta", "Mylapore", False, (13.033, 80.268)),
-        ("priya", "Priya Selvam (demo)", "25", "en", "Anna Nagar", False, (13.087, 80.212)),
+    for email, name, age, lang, area, consent, abha, (lat, lon) in [
+        ("asha", "Asha Kumar (demo)", "34", "en", "Adyar", True, "asha@abdm", (13.004, 80.255)),
+        ("ravi", "Ravi Shankar (demo)", "67", "ta", "Mylapore", False, "ravi@abdm", (13.033, 80.268)),
+        ("priya", "Priya Selvam (demo)", "25", "en", "Anna Nagar", False, "priya@abdm", (13.087, 80.212)),
     ]:
         u = User(email=f"{email}@{DOMAIN}", password_hash=pw_hash, role="patient", full_name=name)
         db.add(u)
         db.flush()
-        db.add(Patient(user_id=u.id, dob_or_age=age, language=lang, area=area, lat=lat, lon=lon, share_history_consent=consent))
+        db.add(Patient(user_id=u.id, dob_or_age=age, language=lang, area=area, lat=lat, lon=lon, share_history_consent=consent, abha_address=abha))
         patients.append(u)
-        accounts.append(("patient", u.email, f"{name}, consent {'ON' if consent else 'OFF'}"))
+        accounts.append(("patient", u.email, f"{name}, ABHA: {abha}, consent {'GRANTED' if consent else 'NONE'}"))
 
     filler = []
     for k in range(10):
         u = User(email=f"filler{k}@walkin.invalid", password_hash=UNUSABLE_PASSWORD, role="patient", full_name=f"Demo Patient {k + 1}")
         db.add(u)
         db.flush()
-        db.add(Patient(user_id=u.id, dob_or_age=str(rng.randint(18, 75)), language=rng.choice(["en", "ta"]), area=rng.choice(["Adyar", "Mylapore"])))
+        db.add(Patient(user_id=u.id, dob_or_age=str(rng.randint(18, 75)), language=rng.choice(["en", "ta"]), area=rng.choice(["Adyar", "Mylapore"]), abha_address=f"filler{k}@abdm"))
         filler.append(u.id)
     db.flush()
 
@@ -201,6 +221,43 @@ def seed(db: Session) -> dict:
         db.add(enc)
         db.flush()
         db.add(Prescription(encounter_id=enc.id, items_json=json.dumps(items)))
+
+    # Phase 3B ABDM Consent Request seeds:
+    # Asha granted consent to Dr. GM Adyar for 30 days
+    from app.models import ConsentRequest, ConsentStatusHistory, SummaryFeedback
+    doc_gm_adyar = doctors[(0, "General Medicine")]
+    req_asha = ConsentRequest(
+        doctor_id=doc_gm_adyar.id,
+        hospital_id=doc_gm_adyar.hospital_id,
+        patient_id=patients[0].id,
+        purpose="Care and treatment",
+        hi_types_json=json.dumps(["OPConsultNote", "Prescription"]),
+        date_from=today - timedelta(days=365),
+        date_to=today,
+        duration_hours=720,
+        expires_at=timeutil.now() + timedelta(days=30),
+        status="GRANTED",
+    )
+    db.add(req_asha)
+    db.flush()
+    db.add(ConsentStatusHistory(consent_request_id=req_asha.id, status="GRANTED", actor_user_id=patients[0].id, actor_role="patient", note="Seeded demo consent grant"))
+
+    # Ravi has a pending request from Dr. GM Adyar
+    req_ravi = ConsentRequest(
+        doctor_id=doc_gm_adyar.id,
+        hospital_id=doc_gm_adyar.hospital_id,
+        patient_id=patients[1].id,
+        purpose="Care and treatment",
+        hi_types_json=json.dumps(["OPConsultNote"]),
+        date_from=today - timedelta(days=180),
+        date_to=today,
+        duration_hours=24,
+        status="REQUESTED",
+    )
+    db.add(req_ravi)
+    db.flush()
+    db.add(ConsentStatusHistory(consent_request_id=req_ravi.id, status="REQUESTED", actor_user_id=doc_gm_adyar.user_id or 0, actor_role="doctor", note="Seeded pending request"))
+
 
     # Sessions: today + next 6 days for every doctor; today's filler tokens only for the account doctors.
     account_doc_ids = {doctors[(hi, spec)].id for hi, spec, _ in DOCTOR_ACCOUNTS}

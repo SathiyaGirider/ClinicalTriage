@@ -35,9 +35,9 @@ class Patient(SQLModel, table=True):
     language: str = "en"
     area: Optional[str] = None
     lat: Optional[float] = None
-    lon: Optional[float] = None
-    share_history_consent: bool = False
+    share_history_consent: bool = False  # Legacy fallback; superseded by ConsentRequest in Phase 3B
     is_walk_in: bool = False
+    abha_address: Optional[str] = None  # Synthetic simulation e.g. asha@abdm (never real IDs)
 
 
 class Hospital(SQLModel, table=True):
@@ -66,6 +66,15 @@ class Doctor(SQLModel, table=True):
     lon: float
     consult_minutes: int = 8
     bio: str = ""
+    room: str = Field(default="Room 1")
+
+
+class NurseAssignment(SQLModel, table=True):
+    __tablename__ = "nurse_assignments"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nurse_id: int = Field(foreign_key="users.id", unique=True, index=True)
+    doctor_id: int = Field(foreign_key="doctors.id", unique=True, index=True)
+    created_at: NaiveDatetime = Field(default_factory=_now)
 
 
 class ClinicSession(SQLModel, table=True):
@@ -239,3 +248,56 @@ class Prescription(SQLModel, table=True):
     encounter_id: int = Field(foreign_key="encounters.id", index=True)
     items_json: str
     created_at: NaiveDatetime = Field(default_factory=_now)
+
+
+# ===========================================================================
+# Phase 3B: ABDM Simulation Models & Staff Feedback
+# ===========================================================================
+
+class ConsentRequest(SQLModel, table=True):
+    """
+    ABDM Consent Request Artefact (SIMULATION).
+    Replaces permanent boolean share_history_consent.
+    Statuses: REQUESTED | GRANTED | DENIED | REVOKED | EXPIRED
+    """
+    __tablename__ = "consent_requests"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    doctor_id: int = Field(foreign_key="doctors.id", index=True)
+    hospital_id: int = Field(foreign_key="hospitals.id")
+    patient_id: int = Field(foreign_key="users.id", index=True)
+    purpose: str = "Care and treatment"
+    hi_types_json: str = '["OPConsultNote", "Prescription"]'
+    date_from: dt.date
+    date_to: dt.date
+    duration_hours: int = 24
+    expires_at: Optional[NaiveDatetime] = None
+    status: str = "REQUESTED"
+    created_at: NaiveDatetime = Field(default_factory=_now)
+    updated_at: NaiveDatetime = Field(default_factory=_now)
+
+
+class ConsentStatusHistory(SQLModel, table=True):
+    """Append-only audit trail of consent status transitions."""
+    __tablename__ = "consent_status_history"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    consent_request_id: int = Field(foreign_key="consent_requests.id", index=True)
+    status: str
+    actor_user_id: int
+    actor_role: str
+    note: Optional[str] = None
+    created_at: NaiveDatetime = Field(default_factory=_now)
+
+
+class SummaryFeedback(SQLModel, table=True):
+    """One-tap staff feedback control for AI triage summaries."""
+    __tablename__ = "summary_feedback"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    summary_id: int = Field(foreign_key="summaries.id", index=True)
+    user_id: int = Field(foreign_key="users.id")
+    role: str
+    useful: bool
+    reason: Optional[str] = None
+    rules_version: str = "1.0"
+    prompt_version: str = "1.0"
+    created_at: NaiveDatetime = Field(default_factory=_now)
+

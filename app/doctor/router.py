@@ -32,8 +32,12 @@ def today(user: User = Depends(require_doctor), db: Session = Depends(get_sessio
     for lbl in (label, "afternoon" if label == "morning" else "morning"):
         ordered += q.ordered_waiting(db, doc.id, day, lbl)
     h = db.get(Hospital, doc.hospital_id)
+    from app.models import NurseAssignment
+    assignment = db.exec(select(NurseAssignment).where(NurseAssignment.doctor_id == doc.id)).first()
+    nurse_u = db.get(User, assignment.nurse_id) if assignment else None
     return {
-        "doctor": {"id": doc.id, "name": doc.name, "specialty": doc.specialty, "hospital": h.name if h else ""},
+        "doctor": {"id": doc.id, "name": doc.name, "specialty": doc.specialty, "hospital": h.name if h else "", "room": doc.room},
+        "assigned_nurse": {"id": nurse_u.id, "name": nurse_u.full_name} if nurse_u else None,
         "date": day.isoformat(), "session": label,
         "with_doctor": q.to_contract(db, cur) if cur else None,
         "next": q.to_contract(db, ordered[0]) if ordered else None,

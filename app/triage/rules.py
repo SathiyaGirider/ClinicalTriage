@@ -90,7 +90,7 @@ def check_red_flags(symptoms: list[str], age: int | None = None) -> str | None:
 # chips, and vitals thresholds. An extractor miss therefore cannot hide a red
 # flag. Deterministic: no LLM, no randomness. Rationales are fixed templates.
 #
-# PROTOTYPE RULES. Every rule needs clinician review (docs/red-flag-rules.md).
+# PROTOTYPE RULES. Every rule needs clinician review (docs/RED_FLAG_RULES.md).
 # ===========================================================================
 
 from dataclasses import dataclass, field  # noqa: E402

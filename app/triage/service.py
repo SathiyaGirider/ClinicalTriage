@@ -22,12 +22,59 @@ from app.triage.rules import RuleResult, VitalsInput, evaluate_rules
 from app.triage.safety_filter import filter_text
 from app.triage.sanitizer import detect_injection, intake_texts
 
+import re
+
 logger = logging.getLogger("lifeline.triage")
 
 FALLBACK_RATIONALE = "Automated urgency estimate unavailable. Escalated so a nurse reviews this patient today."
 LOW_CONFIDENCE_RATIONALE = "The information given was unclear or the estimate was uncertain. Escalated so a nurse reviews this patient today."
 INJECTION_RATIONALE_SUFFIX = " Unusual instruction-like text was found in the patient's answers; escalated for review."
 INTERNAL_ERROR_RATIONALE = "The triage system hit an internal error. Escalated so a nurse reviews this patient today."
+
+MILD_ALLOWLIST = {
+    "cough", "runny_nose", "sore_throat", "cold_symptoms",
+    "fatigue", "headache", "body_pain", "nose_problem", "eye_problem",
+}
+
+
+def _is_duration_le_3_days(duration: str | None) -> bool:
+    if not duration:
+        return False
+    d = str(duration).lower().strip()
+    if d in ("less_than_day", "1_to_3_days", "today", "yesterday", "since morning", "few hours", "hours"):
+        return True
+    # "since yesterday [evening/morning/…]", "yesterday evening", "started yesterday", etc.
+    if re.search(r"\b(yesterday|since\s+yesterday|started\s+yesterday)\b", d):
+        return True
+    if any(w in d for w in ("week", "month", "year", "4_to_7", "more_than", "chronic", "unspecified", "unknown")):
+        return False
+    m = re.search(r"(\d+)\s*(day|hour|hr)", d)
+    if m:
+        num = int(m.group(1))
+        unit = m.group(2)
+        if "hour" in unit or "hr" in unit:
+            return True
+        return num <= 3
+    return False
+
+
+def _is_mild_allowlist_candidate(intake: IntakeResult, tags: list[str], inj_suspected: bool) -> bool:
+    if inj_suspected:
+        return False
+    if intake.input_confidence != "high":
+        return False
+    if intake.age is None or not (5 <= intake.age <= 59):
+        return False
+    if intake.known_conditions and any(c.strip().lower() not in ("none", "") for c in intake.known_conditions):
+        return False
+    if not tags:
+        return False
+    tag_set = set(tags)
+    if not tag_set.issubset(MILD_ALLOWLIST | {"fever"}):
+        return False
+    if "fever" in tag_set and not _is_duration_le_3_days(intake.duration):
+        return False
+    return True
 
 
 def _now() -> str:
@@ -89,9 +136,14 @@ def _triage(intake: IntakeResult, vitals: VitalsInput | None, client: LLMClient 
         if filtered:
             notes.append("output_filtered")
     except RuntimeError:
-        priority, confidence, rationale = "same-day", "low", FALLBACK_RATIONALE
-        decided_by = "fallback"
-        notes.append("llm_fallback_used")
+        if _is_mild_allowlist_candidate(intake, tags, inj.suspected):
+            priority, confidence, rationale = "routine", "high", "Fallback mild allowlist: patient reports only mild upper-respiratory symptoms with no red flags and normal risk profile."
+            decided_by = "rule"
+            notes.append("fallback_mild_allowlist")
+        else:
+            priority, confidence, rationale = "same-day", "low", FALLBACK_RATIONALE
+            decided_by = "fallback"
+            notes.extend(["llm_fallback_used", "ai_unavailable_escalated"])
 
     escalate = apply_escalation(intake, confidence)
     if confidence == "low" and decided_by == "llm":

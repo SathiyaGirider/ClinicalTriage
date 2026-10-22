@@ -15,3 +15,4 @@ frontend/dist/
 .env.*
 !.env.example
 *.tsbuildinfo
+powershell.cmd

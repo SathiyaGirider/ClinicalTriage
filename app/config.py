@@ -53,6 +53,9 @@ class Settings:
         default_factory=lambda: [n.strip() for n in os.getenv("EMERGENCY_NUMBERS", "112,108").split(",") if n.strip()]
     )
 
+    ai_enabled: bool = field(default_factory=lambda: _bool("AI_ENABLED", True))
+    abdm_mode: str = field(default_factory=lambda: os.getenv("ABDM_MODE", "mock"))
+
     ehr_backend: str = field(default_factory=lambda: os.getenv("EHR_BACKEND", "local"))
     seed_demo: bool = field(default_factory=lambda: _bool("SEED_DEMO", False))
     seed_password: str | None = field(default_factory=lambda: os.getenv("SEED_PASSWORD") or None)
@@ -60,7 +63,8 @@ class Settings:
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.groq_api_key and self.llm_model)
+        return self.ai_enabled and bool(self.groq_api_key and self.llm_model)
+
 
 
 settings = Settings()

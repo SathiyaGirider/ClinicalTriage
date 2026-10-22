@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.abdm_mock.router import router as abdm_router
 from app.auth.router import router as auth_router
 from app.booking.router import router as booking_router
 from app.catalog.router import router as catalog_router
@@ -26,6 +27,7 @@ from app.patient.router import router as patient_router
 from app.pipeline.router import router as pipeline_router
 from app.queue.router import router as queue_router
 from app.triage.router import router as triage_router
+
 
 configure_logging()
 logger = logging.getLogger("lifeline.main")
@@ -69,8 +71,9 @@ async def unhandled(request: Request, exc: Exception):
 
 
 for r in (auth_router, catalog_router, booking_router, intake_session_router, pipeline_router, triage_router, queue_router,
-          doctor_router, ehr_router, patient_router):
+          doctor_router, ehr_router, patient_router, abdm_router):
     app.include_router(r)
+
 
 # Person A's original kiosk endpoints are kept in the codebase but they are
 # unauthenticated, so they are only mounted when explicitly enabled.
@@ -89,7 +92,8 @@ def health():
 def public_config():
     return {"emergency_numbers": settings.emergency_numbers, "alert_amber_seconds": settings.alert_amber_seconds,
             "alert_red_seconds": settings.alert_red_seconds, "hold_minutes": settings.hold_minutes,
-            "walkin_policy": settings.walkin_policy, "disclaimer": DISCLAIMER, "ai_banner": AI_BANNER}
+            "walkin_policy": settings.walkin_policy, "disclaimer": DISCLAIMER, "ai_banner": AI_BANNER,
+            "dev_endpoints": settings.dev_endpoints}
 
 
 @app.on_event("startup")
@@ -111,3 +115,22 @@ if _DIST.exists():
         if path and f.is_file() and _DIST in f.resolve().parents:
             return FileResponse(f)
         return FileResponse(_DIST / "index.html")
+else:
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        from fastapi import Response
+        return Response(status_code=204)
+
+    @app.get("/", include_in_schema=False)
+    def root_dev_notice():
+        return {
+            "service": "LifeLine API (Prototype)",
+            "status": "online",
+            "frontend_dev_url": "http://localhost:5173",
+            "swagger_docs": "http://localhost:8000/docs",
+            "instructions": (
+                "The backend is active on port 8000. To use the web interface, open http://localhost:5173 in your browser "
+                "(started via 'npm run dev' in the frontend directory). Alternatively, run 'npm run build' in the frontend "
+                "folder to bundle static files so port 8000 serves both API and web UI."
+            ),
+        }

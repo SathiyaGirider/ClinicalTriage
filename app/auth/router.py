@@ -48,6 +48,18 @@ class TokenResponse(BaseModel):
     user_id: int
 
 
+class AssignedDoctorInfo(BaseModel):
+    id: int
+    name: str
+    specialty: str
+    room: str
+
+
+class AssignedNurseInfo(BaseModel):
+    id: int
+    name: str
+
+
 class MeResponse(BaseModel):
     id: int
     email: str
@@ -59,7 +71,10 @@ class MeResponse(BaseModel):
     language: Optional[str] = None
     age: Optional[str] = None
     area: Optional[str] = None
+    abha_address: Optional[str] = None
     share_history_consent: Optional[bool] = None
+    assigned_doctor: Optional[AssignedDoctorInfo] = None
+    assigned_nurse: Optional[AssignedNurseInfo] = None
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
@@ -102,11 +117,25 @@ def me(user: User = Depends(get_current_user), db: Session = Depends(get_session
         p = db.get(Patient, user.id)
         if p:
             out.language, out.age, out.area, out.share_history_consent = p.language, p.dob_or_age, p.area, p.share_history_consent
+            out.abha_address = p.abha_address
+    if user.role == "nurse":
+        from app.models import NurseAssignment
+        assign = db.exec(select(NurseAssignment).where(NurseAssignment.nurse_id == user.id)).first()
+        if assign:
+            doc = db.get(Doctor, assign.doctor_id)
+            if doc:
+                out.assigned_doctor = AssignedDoctorInfo(id=doc.id, name=doc.name, specialty=doc.specialty, room=doc.room)
     if user.role == "doctor":
+        from app.models import NurseAssignment
         doc = db.exec(select(Doctor).where(Doctor.user_id == user.id)).first()
         if doc:
             out.doctor_id = doc.id
             out.hospital_id = doc.hospital_id
+            assign = db.exec(select(NurseAssignment).where(NurseAssignment.doctor_id == doc.id)).first()
+            if assign:
+                nurse_u = db.get(User, assign.nurse_id)
+                if nurse_u:
+                    out.assigned_nurse = AssignedNurseInfo(id=nurse_u.id, name=nurse_u.full_name)
     if out.hospital_id:
         h = db.get(Hospital, out.hospital_id)
         out.hospital_name = h.name if h else None

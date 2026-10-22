@@ -12,7 +12,10 @@ export type Me = {
   language?: "en" | "ta" | null;
   age?: string | null;
   area?: string | null;
+  abha_address?: string | null;
   share_history_consent?: boolean | null;
+  assigned_doctor?: { id: number; name: string; specialty: string; room: string } | null;
+  assigned_nurse?: { id: number; name: string } | null;
 };
 
 type Ctx = {
@@ -44,11 +47,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
+      const current = window.location.pathname + window.location.search;
       setToken(null);
       setMe(null);
+      if (current && !current.startsWith("/login") && !current.startsWith("/register")) {
+        window.location.href = `/login?expired=1&return_to=${encodeURIComponent(current)}`;
+      }
     });
     refresh().finally(() => setLoading(false));
   }, [refresh]);
+
 
   const login = async (email: string, password: string) => {
     const r = await post<{ access_token: string }>("/auth/login", { email, password });

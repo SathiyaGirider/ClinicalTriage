@@ -29,9 +29,9 @@ DEPT_TEXT = {"en": "This kind of problem is usually seen by: {dept}", "ta": "இ
 
 
 def outcome_for(decision: TriageDecision) -> str:
-    if decision.priority == "emergency":
+    if decision.priority == "emergency" or decision.rule_tier == "emergency":
         return OUTCOME_EMERGENCY
-    if decision.priority == "same-day" or decision.escalation_required:
+    if decision.flag_for_nurse or decision.escalation_required or decision.rule_tier == "urgent":
         return OUTCOME_CONCERNING
     return OUTCOME_ROUTINE
 

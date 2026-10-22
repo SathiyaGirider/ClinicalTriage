@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError, post } from "../shared/api";
 import { useI18n } from "../shared/i18n";
+import { CheckIcon } from "../shared/icons";
 import { ErrorBox, Loading } from "../shared/ui";
 import { MicButton } from "../shared/voice";
 
@@ -39,7 +40,8 @@ export function QuestionInput({ q, initial, onSubmit, busy, staff = false }: {
         <legend><h2>{label}</h2></legend>
         {q.options.includes("none") && (
           <button type="button" className={`chip none-big ${multi.includes("none") ? "on" : ""}`} onClick={() => (isScreen ? onSubmit(["none"]) : toggle("none"))} disabled={busy}>
-            ✓ {t("intake.none_of_these")}
+            <CheckIcon width={18} height={18} />
+            <span>{t("intake.none_of_these")}</span>
           </button>
         )}
         <div className="chips">
@@ -159,17 +161,55 @@ export default function IntakeWizard({ start, onFinished, confirm = true, staff 
       setBusy(false);
     }
   };
+  // Local draft retention
+  useEffect(() => {
+    if (view && pending !== undefined) {
+      try {
+        localStorage.setItem(`lifeline_draft_${view.session_id}`, JSON.stringify({ key: view.current?.key, val: pending }));
+      } catch {}
+    }
+  }, [view, pending]);
+
   if (!view) return err ? <ErrorBox error={err} onRetry={() => { setErr(null); start().then(setView).catch(setErr); }} /> : <Loading />;
   if (view.done) {
     if (!confirm || view.ended_early_for_safety) return <Loading />;
     return <ConfirmScreen sessionId={view.session_id} busy={busy} onConfirm={() => onFinished(view.session_id, false)} />;
   }
+
+  const isOffline = (err instanceof ApiError && err.offline) || (typeof navigator !== "undefined" && !navigator.onLine);
+
   return (
     <div>
-      <p className="muted">{t("intake.progress", { n: view.question_number, max: view.max_questions })}</p>
-      {view.age_prefilled != null && view.question_number === 1 && <p className="muted small-text">{t("intake.age_prefilled", { age: view.age_prefilled })}</p>}
-      {view.current && <QuestionInput q={view.current} initial={pending} onSubmit={send} busy={busy} staff={staff} />}
-      <ErrorBox error={err} onRetry={err instanceof ApiError && err.offline && pending !== undefined ? () => send(pending) : undefined} />
+      <div className="spread" style={{ alignItems: "center", marginBottom: "0.5rem" }}>
+        <p className="muted" style={{ margin: 0 }}>
+          {t("intake.progress", { n: view.question_number, max: view.max_questions })}
+        </p>
+      </div>
+
+      {isOffline && (
+        <div className="notice" style={{ marginBottom: "1rem", borderColor: "var(--status-urgent-solid)" }}>
+          <strong>Offline:</strong> No network. Your answers are kept. Try again.
+        </div>
+      )}
+
+      {view.age_prefilled != null && view.question_number === 1 && (
+        <p className="muted small-text">{t("intake.age_prefilled", { age: view.age_prefilled })}</p>
+      )}
+
+      {view.current && (
+        <QuestionInput
+          q={view.current}
+          initial={pending}
+          onSubmit={send}
+          busy={busy}
+          staff={staff}
+        />
+      )}
+
+      <ErrorBox
+        error={err}
+        onRetry={pending !== undefined ? () => send(pending) : undefined}
+      />
     </div>
   );
 }
