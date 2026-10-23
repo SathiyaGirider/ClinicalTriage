@@ -79,11 +79,16 @@ npm run dev
 | `DEMO_LLM_STANDIN` | `false` | When `true` and no `GROQ_API_KEY` is provided, uses a labelled deterministic keyword standin to demonstrate the routine outcome. |
 | `ABDM_MODE` | `mock` | Selects `MockGateway` in `app/abdm_mock/gateway.py` with provider-side read enforcement. |
 | `SEED_DEMO` | `true` | Allows running `python -m app.seed` to generate synthetic doctors, nurses, sessions, and patients. |
-| `SEED_PASSWORD` | `demo-pass-123` | Default password for all seeded demo accounts. |
+| `SEED_PASSWORD` | `Password123!` | Default password for all seeded demo accounts. |
 
 ---
 
-## Seeded Demo Accounts (Password: `demo-pass-123`)
+## Presentation Walkthrough & Demo Guide
+👉 **See [WALKTHROUGH.md](file:///d:/projects/ClinicalTriage/WALKTHROUGH.md) for the 5-minute professor demo script and Q&A prep.**
+
+---
+
+## Seeded Demo Accounts (Password: `Password123!`)
 
 | Role | Email | Details / Scoping |
 | :--- | :--- | :--- |
