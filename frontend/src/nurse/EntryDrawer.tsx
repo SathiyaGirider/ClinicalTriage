@@ -127,7 +127,12 @@ export default function EntryDrawer({ entryId, onClose }: { entryId: number; onC
   };
   return (
     <aside className="drawer" role="dialog" aria-label="Patient details">
-      <div className="spread"><h2>Patient</h2><button className="btn small ghost" onClick={onClose}>Close</button></div>
+      <div className="spread" style={{ position: "sticky", top: "-1rem", marginTop: "-0.5rem", padding: "0.75rem 0", background: "var(--surface-card)", zIndex: 10, borderBottom: "1px solid var(--border-subtle)", marginBottom: "1rem" }}>
+        <h2 style={{ margin: 0, fontSize: "1.2rem" }}>Patient Details</h2>
+        <button className="btn small ghost" onClick={onClose} style={{ fontWeight: 600, fontSize: "0.95rem" }} aria-label="Close drawer">
+          ✕ Close
+        </button>
+      </div>
       <ErrorBox error={err} />
       {!d ? <Loading /> : (
         <>

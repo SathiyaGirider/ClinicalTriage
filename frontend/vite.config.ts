@@ -3,9 +3,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// The API runs on :8000. In dev, Vite proxies API paths so the browser only talks to one origin.
-const API = process.env.VITE_API_PROXY || "http://localhost:8000";
-const apiPaths = ["/auth", "/catalog", "/booking", "/intake", "/pipeline", "/triage", "/queue", "/doctor", "/ehr", "/me", "/health", "/config"];
+// The API runs on :8001 (or VITE_API_PROXY). In dev, Vite proxies API paths so the browser only talks to one origin.
+const API = process.env.VITE_API_PROXY || "http://localhost:8001";
+const apiPaths = ["/auth", "/catalog", "/booking", "/intake", "/pipeline", "/triage", "/queue", "/doctor", "/ehr", "/me", "/health", "/config", "/abdm"];
 
 export default defineConfig({
   plugins: [

@@ -66,79 +66,61 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* App Shell */
+/* =====================================================================
+   App Shell & Full Responsive Layout (Laptop/Desktop & Mobile)
+   ===================================================================== */
 .app {
-  max-width: 580px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
-  background: var(--surface-card);
-  border-left: 1px solid var(--border-subtle);
-  border-right: 1px solid var(--border-subtle);
+  background: var(--surface-page);
   display: flex;
   flex-direction: column;
+  margin: 0;
+  border: none;
 }
 
-.app.wide {
-  max-width: 1400px;
-  font-size: var(--font-size-staff);
-  background: var(--surface-page);
-  border-left: none;
-  border-right: none;
-}
-
-main {
-  padding: var(--space-2);
-  flex: 1;
-}
-
-@media (min-width: 768px) {
-  main {
-    padding: var(--space-3);
-  }
-}
-
-/* =====================================================================
-   Healthcare Headers & Banners (Quiet, Clinical)
-   ===================================================================== */
-.banner {
-  padding: var(--space-1) var(--space-2);
-  font-size: 0.82rem;
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.banner-demo {
-  background-color: var(--surface-muted);
-  color: var(--ink-secondary);
+.topbar-wrapper {
+  background: var(--surface-card);
   border-bottom: 1px solid var(--border-subtle);
-}
-
-.banner-ai {
-  background-color: #f8fafc;
-  color: var(--ink-muted);
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 0.8rem;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .topbar {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-1-5) var(--space-2);
-  background: var(--surface-card);
-  border-bottom: 1px solid var(--border-strong);
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  gap: var(--space-2);
 }
 
 .brand {
   display: flex;
-  gap: var(--space-1);
+  gap: 0.5rem;
   align-items: center;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   text-decoration: none;
-  color: var(--ink-primary);
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.brand-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  margin-left: 0.25rem;
 }
 
 .topbar-right {
@@ -148,36 +130,231 @@ main {
 }
 
 .topbar-user {
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
   color: var(--ink-secondary);
+}
+
+.hospital-tag {
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  padding-right: 0.5rem;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.user-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.user-badge.doctor { background: #e0f2fe; color: #0369a1; }
+.user-badge.nurse { background: #fef3c7; color: #92400e; }
+.user-badge.patient { background: #ecfdf5; color: #065f46; }
+
+.tabs-wrapper {
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
 }
 
 .tabs {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
-  gap: var(--space-0-5);
+  gap: 0.35rem;
   overflow-x: auto;
-  padding: var(--space-1) var(--space-2);
-  background: var(--surface-card);
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.45rem 1.5rem;
+  background: transparent;
 }
 
 .tabs a {
-  padding: var(--space-1) var(--space-2);
+  padding: 0.45rem 0.9rem;
   border-radius: var(--radius-md);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   color: var(--ink-secondary);
   white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
 .tabs a:hover {
   background: var(--surface-muted);
+  color: var(--ink-primary);
 }
 
 .tabs a.active {
   background: var(--primary);
-  color: var(--primary-ink);
+  color: #ffffff;
+}
+
+main {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.app.wide {
+  font-size: var(--font-size-staff);
+}
+
+.app.wide main {
+  max-width: 1400px;
+  padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0.6rem 1rem;
+  }
+  .tabs {
+    padding: 0.35rem 1rem;
+  }
+  main {
+    padding: 1rem;
+  }
+}
+
+/* =====================================================================
+   Auth Presentation (Centered Laptop Card with Clean Elevation)
+   ===================================================================== */
+.auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(80vh - 70px);
+  padding: 1rem;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 460px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.auth-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.auth-header h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: 0.2rem;
+}
+
+.auth-subtitle {
+  font-size: 0.86rem;
+  color: var(--ink-muted);
+  margin-bottom: 0;
+}
+
+.demo-account-pills {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.demo-account-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-buttons-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.demo-btn:hover {
+  background: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* =====================================================================
+   Patient Home Grid Enhancements
+   ===================================================================== */
+.home-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .home-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.home-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+/* =====================================================================
+   Healthcare Banners (In-page Alerts Only)
+   ===================================================================== */
+.banner {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-md);
+}
+
+.banner-demo {
+  background-color: var(--surface-muted);
+  color: var(--ink-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.banner-ai {
+  background-color: #f8fafc;
+  color: var(--ink-muted);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
 }
 
 /* =====================================================================
@@ -351,7 +528,7 @@ main {
 }
 
 /* =====================================================================
-   Forms & Inputs (Clinical, Left-Aligned, Visible Borders)
+   Forms & Inputs (Uniform Height, Padding, Clinical Borders)
    ===================================================================== */
 label.field {
   display: block;
@@ -361,38 +538,77 @@ label.field {
   color: var(--ink-secondary);
 }
 
-label.field input,
-label.field select,
-label.field textarea,
+.field-group {
+  margin-bottom: 1.25rem;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin-bottom: 0.45rem;
+}
+
+.field-required {
+  color: #dc2626;
+  margin-left: 0.25rem;
+  font-weight: 700;
+}
+
+.field-hint {
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.field-error {
+  font-size: 0.82rem;
+  color: #dc2626;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Uniform styling for ALL input types, select, and textarea */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+select,
 textarea,
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-select {
+.custom-select {
   display: block;
   width: 100%;
-  margin-top: var(--space-0-5);
-  font-size: 1rem;
-  padding: var(--space-1-5);
+  height: 44px;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.85rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong);
   background: var(--surface-card);
   color: var(--ink-primary);
   font-family: inherit;
-}
-
-label.field input:focus,
-label.field textarea:focus,
-textarea:focus,
-input:focus,
-select:focus {
-  border-color: var(--border-focus);
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 textarea {
+  height: auto;
   min-height: 100px;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus,
+.custom-select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: var(--surface-muted);
+  color: var(--ink-muted);
+  cursor: not-allowed;
 }
 
 /* Option Chips */
@@ -668,10 +884,10 @@ textarea {
   width: min(540px, 100%);
   background: var(--surface-card);
   border-left: 1px solid var(--border-strong);
-  z-index: 80;
+  z-index: 1000;
   overflow-y: auto;
   padding: var(--space-2);
-  box-shadow: var(--shadow-drawer);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
 table.log {

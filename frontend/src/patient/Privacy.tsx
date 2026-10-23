@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { api, fmtDate, post } from "../shared/api";
 import { useAuth } from "../shared/auth";
 import { useI18n } from "../shared/i18n";
-import { ShieldAlertIcon } from "../shared/icons";
 import { Banner, Button, Card, Dialog, EmptyState, ErrorBox, Loading, StatusPill } from "../shared/ui";
 
 type ConsentItem = {
